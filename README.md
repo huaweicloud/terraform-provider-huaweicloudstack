@@ -20,7 +20,8 @@ Building The Provider
 Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-huaweicloudstack`
 
 ```sh
-$ go get github.com/terraform-providers/terraform-provider-huaweicloudstack
+$ export GIT_TERMINAL_PROMPT=1; 
+$ git clone https://github.com/huaweicloud/terraform-provider-huaweicloudstack $GOPATH/src/github.com/terraform-providers/terraform-provider-huaweicloudstack
 ```
 
 Enter the provider directory and build the provider
@@ -38,7 +39,8 @@ $ wget https://storage.googleapis.com/golang/go1.11.5.linux-amd64.tar.gz
 $ sudo tar -C /usr/local -xzf go1.11.5.linux-amd64.tar.gz
 $ export PATH=$PATH:/usr/local/go/bin # You should put in your .profile or .bashrc
 $ go version # to verify it runs and version #
-$ go get github.com/terraform-providers/terraform-provider-huaweicloudstack
+$ export GIT_TERMINAL_PROMPT=1;
+$ git clone https://github.com/huaweicloud/terraform-provider-huaweicloudstack ~/go/src/github.com/terraform-providers/terraform-provider-huaweicloudstack
 $ cd ~/go/src/github.com/terraform-providers/terraform-provider-huaweicloudstack/
 $ make build
 $ export PATH=$PATH:~/go/bin # You should put in your .profile or .bashrc
