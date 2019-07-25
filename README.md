@@ -55,30 +55,7 @@ $ terraform apply # Should all work if everything is correct.
 
 ## Quick Start
 
-1. AK/SK Configuration
-
-```hcl
-# Configure the HuaweiCloudStack Provider with AK/SK
-# This will work with a single defined/default network, otherwise you need to specify network
-# to fix errrors about multiple networks found.
-provider "huaweicloudstack" {
-  tenant_name = "tenant name"
-  access_key  = "access key"
-  secret_key  = "secret key"
-  # the auth url format follows: https://iam.{region_id}.prod-cloud-ocb.orange-business.com:443/v3
-  auth_url    = "https://iam.eu-west-0.prod-cloud-ocb.orange-business.com:443/v3"
-  region      = "eu-west-0"
-}
-
-# Create a web server
-resource "huaweicloudstack_compute_instance_v2" "test-server" {
-  name            = "test-server"
-  image_name  = "Standard_CentOS_7_latest"
-  flavor_name = "s1.medium"
-}
-```
-
-2. Username/Password Configuration
+Username/Password Configuration
 
 ```hcl
 # Configure the HuaweiCloudStack Provider with Username/Password 
@@ -86,12 +63,12 @@ resource "huaweicloudstack_compute_instance_v2" "test-server" {
 # to fix errrors about multiple networks found.
 provider "huaweicloudstack" {
   user_name   = "user"
-  tenant_name = "tenant"
+  tenant_name = "cn-north-1"
+  region      = "cn-north-1"
   domain_name = "domain"
   password    = "pwd"
-  # the auth url format follows: https://iam.{region_id}.prod-cloud-ocb.orange-business.com:443/v3
-  auth_url    = "https://iam.eu-west-0.prod-cloud-ocb.orange-business.com:443/v3"
-  region      = "eu-west-0"
+  # the auth url format follows: https://iam.{region_id}.myhwclouds.com:443/v3
+  auth_url    = "https://iam.cn-north-1.myhwclouds.com:443/v3"
 }
 
 # Create a web server
