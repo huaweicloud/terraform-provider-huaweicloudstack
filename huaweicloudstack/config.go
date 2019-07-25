@@ -72,27 +72,16 @@ func newhwClient(c *Config) error {
 
 	var ao golangsdk.AuthOptionsProvider
 
-	if c.AccessKey != "" && c.SecretKey != "" {
-		ao = golangsdk.AKSKAuthOptions{
-			IdentityEndpoint: c.IdentityEndpoint,
-			ProjectId:        c.TenantID,
-			ProjectName:      c.TenantName,
-			Region:           c.Region,
-			AccessKey:        c.AccessKey,
-			SecretKey:        c.SecretKey,
-		}
-	} else {
-		ao = golangsdk.AuthOptions{
-			DomainID:         c.DomainID,
-			DomainName:       c.DomainName,
-			IdentityEndpoint: c.IdentityEndpoint,
-			Password:         c.Password,
-			TenantID:         c.TenantID,
-			TenantName:       c.TenantName,
-			TokenID:          c.Token,
-			Username:         c.Username,
-			UserID:           c.UserID,
-		}
+	ao = golangsdk.AuthOptions{
+		DomainID:         c.DomainID,
+		DomainName:       c.DomainName,
+		IdentityEndpoint: c.IdentityEndpoint,
+		Password:         c.Password,
+		TenantID:         c.TenantID,
+		TenantName:       c.TenantName,
+		TokenID:          c.Token,
+		Username:         c.Username,
+		UserID:           c.UserID,
 	}
 
 	client, err := huaweisdk.NewClient(ao.GetIdentityEndpoint())
@@ -149,15 +138,6 @@ func newhwClient(c *Config) error {
 		Transport: &LogRoundTripper{
 			Rt:      transport,
 			OsDebug: osDebug,
-		},
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			if client.AKSKAuthOptions.AccessKey != "" {
-				golangsdk.ReSign(req, golangsdk.SignOptions{
-					AccessKey: client.AKSKAuthOptions.AccessKey,
-					SecretKey: client.AKSKAuthOptions.SecretKey,
-				})
-			}
-			return nil
 		},
 	}
 
