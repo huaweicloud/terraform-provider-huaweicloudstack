@@ -79,11 +79,6 @@ resource "huaweicloudstack_compute_instance_v2" "test-server" {
 }
 ```
 
-### Full Example
-----------------------
-Please see full example at https://github.com/terraform-providers/terraform-provider-huaweicloudstack/tree/master/examples,
-you must fill in the required variables in variables.tf.
-
 Using the provider
 ----------------------
 Please see the documentation at [provider usage](website/docs/index.html.markdown).
