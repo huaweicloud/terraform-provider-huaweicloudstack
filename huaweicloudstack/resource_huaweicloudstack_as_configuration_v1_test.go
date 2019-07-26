@@ -94,11 +94,11 @@ resource "huaweicloudstack_as_configuration_v1" "as_config_1"{
   scaling_configuration_name = "as_config_1"
   instance_config = {
     image = "%s"
-    disk = [
-      {size = 40
+    disk {
+      size = 40
       volume_type = "SATA"
-      disk_type = "SYS"}
-    ]
+      disk_type = "SYS"
+    }
     key_name = "${huaweicloudstack_compute_keypair_v2.key_1.id}"
   }
 }

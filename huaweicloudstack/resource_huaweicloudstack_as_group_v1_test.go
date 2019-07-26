@@ -99,11 +99,11 @@ resource "huaweicloudstack_as_configuration_v1" "as_config_1"{
   scaling_configuration_name = "as_config_1"
   instance_config = {
     image = "%s"
-    disk = [
-      {size = 40
+    disk {
+      size = 40
       volume_type = "SATA"
-      disk_type = "SYS"}
-    ]
+      disk_type = "SYS"
+    }
     key_name = "${huaweicloudstack_compute_keypair_v2.key_1.id}"
   }
 }
@@ -111,12 +111,12 @@ resource "huaweicloudstack_as_configuration_v1" "as_config_1"{
 resource "huaweicloudstack_as_group_v1" "as_group_1"{
   scaling_group_name = "as_group_1"
   scaling_configuration_id = "${huaweicloudstack_as_configuration_v1.as_config_1.id}"
-  networks = [
-    {id = "%s"},
-  ]
-  security_groups = [
-    {id = "${huaweicloudstack_networking_secgroup_v2.secgroup.id}"},
-  ]
+  networks {
+    id = "%s"
+  }
+  security_groups {
+    id = "${huaweicloudstack_networking_secgroup_v2.secgroup.id}"
+  }
   vpc_id = "%s"
 }
 `, OS_IMAGE_ID, OS_NETWORK_ID, OS_VPC_ID)

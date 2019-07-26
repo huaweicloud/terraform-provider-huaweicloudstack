@@ -22,7 +22,7 @@ func TestAccASV1Policy_basic(t *testing.T) {
 			{
 				Config: testASV1Policy_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckASV1PolicyExists("huaweicloudstack_as_policy_v1.hth_as_policy", &asPolicy),
+					testAccCheckASV1PolicyExists("huaweicloudstack_as_policy_v1.as_policy", &asPolicy),
 				),
 			},
 		},
@@ -87,45 +87,45 @@ resource "huaweicloudstack_networking_secgroup_v2" "secgroup" {
   description = "This is a terraform test security group"
 }
 
-resource "huaweicloudstack_compute_keypair_v2" "hth_key" {
-  name = "hth_key"
+resource "huaweicloudstack_compute_keypair_v2" "key" {
+  name = "key"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDAjpC1hwiOCCmKEWxJ4qzTTsJbKzndLo1BCz5PcwtUnflmU+gHJtWMZKpuEGVi29h0A/+ydKek1O18k10Ff+4tyFjiHDQAT9+OfgWf7+b1yK+qDip3X1C0UPMbwHlTfSGWLGZquwhvEFx9k3h/M+VtMvwR1lJ9LUyTAImnNjWG7TAIPmui30HvM2UiFEmqkr4ijq45MyX2+fLIePLRIFuu1p4whjHAQYufqyno3BS48icQb4p6iVEZPo4AE2o9oIyQvj2mx4dk5Y8CgSETOZTYDOR3rU2fZTRDRgPJDH9FWvQjF5tA0p3d9CoWWd2s6GKKbfoUIi8R/Db1BSPJwkqB jrp-hp-pc"
 }
 
-resource "huaweicloudstack_as_configuration_v1" "hth_as_config"{
-  scaling_configuration_name = "hth_as_config"
+resource "huaweicloudstack_as_configuration_v1" "as_config"{
+  scaling_configuration_name = "as_config"
   instance_config = {
     image = "%s"
-    disk = [
-      {size = 40
+    disk {
+      size = 40
       volume_type = "SATA"
-      disk_type = "SYS"}
-    ]
-    key_name = "${huaweicloudstack_compute_keypair_v2.hth_key.id}"
+      disk_type = "SYS"
+    }
+    key_name = "${huaweicloudstack_compute_keypair_v2.key.id}"
   }
 }
 
-resource "huaweicloudstack_as_group_v1" "hth_as_group"{
-  scaling_group_name = "hth_as_group"
-  scaling_configuration_id = "${huaweicloudstack_as_configuration_v1.hth_as_config.id}"
-  networks = [
-    {id = "%s"},
-  ]
-  security_groups = [
-    {id = "${huaweicloudstack_networking_secgroup_v2.secgroup.id}"},
-  ]
+resource "huaweicloudstack_as_group_v1" "as_group"{
+  scaling_group_name = "as_group"
+  scaling_configuration_id = "${huaweicloudstack_as_configuration_v1.as_config.id}"
+  networks {
+    id = "%s"
+  }
+  security_groups {
+    id = "${huaweicloudstack_networking_secgroup_v2.secgroup.id}"
+  }
   vpc_id = "%s"
 }
 
-resource "huaweicloudstack_as_policy_v1" "hth_as_policy"{
+resource "huaweicloudstack_as_policy_v1" "as_policy"{
   scaling_policy_name = "terraform"
-  scaling_group_id = "${huaweicloudstack_as_group_v1.hth_as_group.id}"
+  scaling_group_id = "${huaweicloudstack_as_group_v1.as_group.id}"
   scaling_policy_type = "SCHEDULED"
-  scaling_policy_action = {
+  scaling_policy_action {
     operation = "ADD"
     instance_number = 1
   }
-  scheduled_policy = {
+  scheduled_policy {
     launch_time = "2020-12-22T12:00Z"
   }
 }
