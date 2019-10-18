@@ -16,8 +16,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/go-cleanhttp"
-	"github.com/hashicorp/terraform/helper/pathorcontents"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
+	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
 	"github.com/huaweicloud/golangsdk"
 	huaweisdk "github.com/huaweicloud/golangsdk/openstack"
 )
@@ -40,6 +40,7 @@ type Config struct {
 	Token            string
 	Username         string
 	UserID           string
+	terraformVersion string
 
 	HwClient *golangsdk.ProviderClient
 	s3sess   *session.Session
@@ -90,7 +91,7 @@ func newhwClient(c *Config) error {
 	}
 
 	// Set UserAgent
-	client.UserAgent.Prepend(terraform.UserAgentString())
+	client.UserAgent.Prepend(httpclient.TerraformUserAgent(c.terraformVersion))
 
 	config := &tls.Config{}
 	if c.CACertFile != "" {
