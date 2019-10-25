@@ -92,7 +92,7 @@ resource "huaweicloudstack_compute_keypair_v2" "key_1" {
 
 resource "huaweicloudstack_as_configuration_v1" "as_config_1"{
   scaling_configuration_name = "as_config_1"
-  instance_config = {
+  instance_config {
     image = "%s"
     disk {
       size = 40
