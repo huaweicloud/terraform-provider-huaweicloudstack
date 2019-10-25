@@ -151,8 +151,6 @@ func Provider() terraform.ResourceProvider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloudstack_networking_network_v2":  dataSourceNetworkingNetworkV2(),
 			"huaweicloudstack_networking_secgroup_v2": dataSourceNetworkingSecGroupV2(),
-			"huaweicloudstack_rts_stack_v1":           dataSourceRTSStackV1(),
-			"huaweicloudstack_rts_stack_resource_v1":  dataSourceRTSStackResourcesV1(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -178,8 +176,6 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloudstack_networking_secgroup_rule_v2":        resourceNetworkingSecGroupRuleV2(),
 			"huaweicloudstack_networking_vip_v2":                  resourceNetworkingVIPV2(),
 			"huaweicloudstack_networking_vip_associate_v2":        resourceNetworkingVIPAssociateV2(),
-			"huaweicloudstack_rts_software_config_v1":             resourceSoftwareConfigV1(),
-			"huaweicloudstack_rts_stack_v1":                       resourceRTSStackV1(),
 		},
 	}
 
