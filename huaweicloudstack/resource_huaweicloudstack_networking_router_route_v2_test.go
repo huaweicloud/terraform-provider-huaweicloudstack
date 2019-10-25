@@ -24,7 +24,7 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 			{
 				Config: testAccNetworkingV2RouterRoute_create,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_1", &router),
+					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_acc", &router),
 					testAccCheckNetworkingV2NetworkExists(
 						"huaweicloudstack_networking_network_v2.network_1", &network[0]),
 					testAccCheckNetworkingV2SubnetExists(
@@ -53,7 +53,7 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 			{
 				Config: testAccNetworkingV2RouterRoute_destroy,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2RouterRouteEmpty("huaweicloudstack_networking_router_v2.router_1"),
+					testAccCheckNetworkingV2RouterRouteEmpty("huaweicloudstack_networking_router_v2.router_acc"),
 				),
 			},
 		},
@@ -170,8 +170,8 @@ func testAccCheckNetworkingV2RouterRouteDestroy(s *terraform.State) error {
 }
 
 const testAccNetworkingV2RouterRoute_create = `
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-  name = "router_1"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+  name = "router_acc"
   admin_state_up = "true"
 }
 
@@ -198,7 +198,7 @@ resource "huaweicloudstack_networking_port_v2" "port_1" {
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "int_1" {
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
   port_id = "${huaweicloudstack_networking_port_v2.port_1.id}"
 }
 
@@ -225,7 +225,7 @@ resource "huaweicloudstack_networking_port_v2" "port_2" {
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "int_2" {
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
   port_id = "${huaweicloudstack_networking_port_v2.port_2.id}"
 }
 
@@ -234,13 +234,13 @@ resource "huaweicloudstack_networking_router_route_v2" "router_route_1" {
   next_hop = "192.168.199.254"
 
   depends_on = ["huaweicloudstack_networking_router_interface_v2.int_1"]
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
 }
 `
 
 const testAccNetworkingV2RouterRoute_update = `
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-  name = "router_1"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+  name = "router_acc"
   admin_state_up = "true"
 }
 
@@ -267,7 +267,7 @@ resource "huaweicloudstack_networking_port_v2" "port_1" {
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "int_1" {
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
   port_id = "${huaweicloudstack_networking_port_v2.port_1.id}"
 }
 
@@ -294,7 +294,7 @@ resource "huaweicloudstack_networking_port_v2" "port_2" {
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "int_2" {
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
   port_id = "${huaweicloudstack_networking_port_v2.port_2.id}"
 }
 
@@ -303,7 +303,7 @@ resource "huaweicloudstack_networking_router_route_v2" "router_route_1" {
   next_hop = "192.168.199.254"
 
   depends_on = ["huaweicloudstack_networking_router_interface_v2.int_1"]
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
 }
 
 resource "huaweicloudstack_networking_router_route_v2" "router_route_2" {
@@ -311,13 +311,13 @@ resource "huaweicloudstack_networking_router_route_v2" "router_route_2" {
   next_hop = "192.168.200.254"
 
   depends_on = ["huaweicloudstack_networking_router_interface_v2.int_2"]
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
 }
 `
 
 const testAccNetworkingV2RouterRoute_destroy = `
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-  name = "router_1"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+  name = "router_acc"
   admin_state_up = "true"
 }
 
@@ -344,7 +344,7 @@ resource "huaweicloudstack_networking_port_v2" "port_1" {
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "int_1" {
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
   port_id = "${huaweicloudstack_networking_port_v2.port_1.id}"
 }
 
@@ -371,7 +371,7 @@ resource "huaweicloudstack_networking_port_v2" "port_2" {
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "int_2" {
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
   port_id = "${huaweicloudstack_networking_port_v2.port_2.id}"
 }
 `

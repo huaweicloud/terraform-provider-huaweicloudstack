@@ -21,14 +21,14 @@ func TestAccNetworkingV2Router_basic(t *testing.T) {
 			{
 				Config: testAccNetworkingV2Router_basic,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_1", &router),
+					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_acc", &router),
 				),
 			},
 			{
 				Config: testAccNetworkingV2Router_update,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"huaweicloudstack_networking_router_v2.router_1", "name", "router_2"),
+						"huaweicloudstack_networking_router_v2.router_acc", "name", "router_acc_update"),
 				),
 			},
 		},
@@ -46,14 +46,14 @@ func TestAccNetworkingV2Router_update_external_gw(t *testing.T) {
 			{
 				Config: testAccNetworkingV2Router_update_external_gw_1,
 				Check: resource.ComposeTestCheckFunc(
-					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_1", &router),
+					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_acc", &router),
 				),
 			},
 			{
 				Config: testAccNetworkingV2Router_update_external_gw_2,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"huaweicloudstack_networking_router_v2.router_1", "external_gateway", OS_EXTGW_ID),
+						"huaweicloudstack_networking_router_v2.router_acc", "external_gateway", OS_EXTGW_ID),
 				),
 			},
 		},
@@ -114,32 +114,32 @@ func testAccCheckNetworkingV2RouterExists(n string, router *routers.Router) reso
 }
 
 const testAccNetworkingV2Router_basic = `
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-	name = "router_1"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+	name = "router_acc"
 	admin_state_up = "true"
 	distributed = "false"
 }
 `
 
 const testAccNetworkingV2Router_update = `
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-	name = "router_2"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+	name = "router_acc_update"
 	admin_state_up = "true"
 	distributed = "false"
 }
 `
 
 const testAccNetworkingV2Router_update_external_gw_1 = `
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-	name = "router"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+	name = "router_acc"
 	admin_state_up = "true"
 	distributed = "false"
 }
 `
 
 var testAccNetworkingV2Router_update_external_gw_2 = fmt.Sprintf(`
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-	name = "router"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+	name = "router_acc"
 	admin_state_up = "true"
 	distributed = "false"
 	external_gateway = "%s"

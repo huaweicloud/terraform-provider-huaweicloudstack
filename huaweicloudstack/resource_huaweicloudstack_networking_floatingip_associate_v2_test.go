@@ -109,12 +109,12 @@ resource "huaweicloudstack_networking_subnet_v2" "subnet_1" {
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "router_interface_1" {
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
-  subnet_id = "${huaweicloudstack_networking_subnet_v2.subnet_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
+  subnet_id = "${huaweicloudstack_networking_subnet_v2.subnet_acc.id}"
 }
 
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-  name = "router_1"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+  name = "router_acc"
   admin_state_up = "true"
 }
 

@@ -28,7 +28,7 @@ func TestAccNetworkingV2RouterInterface_basic_subnet(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2NetworkExists("huaweicloudstack_networking_network_v2.network_1", &network),
 					testAccCheckNetworkingV2SubnetExists("huaweicloudstack_networking_subnet_v2.subnet_1", &subnet),
-					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_1", &router),
+					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_acc", &router),
 					testAccCheckNetworkingV2RouterInterfaceExists("huaweicloudstack_networking_router_interface_v2.int_1"),
 				),
 			},
@@ -52,7 +52,7 @@ func TestAccNetworkingV2RouterInterface_basic_port(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2NetworkExists("huaweicloudstack_networking_network_v2.network_1", &network),
 					testAccCheckNetworkingV2SubnetExists("huaweicloudstack_networking_subnet_v2.subnet_1", &subnet),
-					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_1", &router),
+					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_acc", &router),
 					testAccCheckNetworkingV2PortExists("huaweicloudstack_networking_port_v2.port_1", &port),
 					testAccCheckNetworkingV2RouterInterfaceExists("huaweicloudstack_networking_router_interface_v2.int_1"),
 				),
@@ -113,14 +113,14 @@ func testAccCheckNetworkingV2RouterInterfaceExists(n string) resource.TestCheckF
 }
 
 const testAccNetworkingV2RouterInterface_basic_subnet = `
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-  name = "router_1"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+  name = "router_acc"
   admin_state_up = "true"
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "int_1" {
   subnet_id = "${huaweicloudstack_networking_subnet_v2.subnet_1.id}"
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
 }
 
 resource "huaweicloudstack_networking_network_v2" "network_1" {
@@ -136,13 +136,13 @@ resource "huaweicloudstack_networking_subnet_v2" "subnet_1" {
 `
 
 const testAccNetworkingV2RouterInterface_basic_port = `
-resource "huaweicloudstack_networking_router_v2" "router_1" {
-  name = "router_1"
+resource "huaweicloudstack_networking_router_v2" "router_acc" {
+  name = "router_acc"
   admin_state_up = "true"
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "int_1" {
-  router_id = "${huaweicloudstack_networking_router_v2.router_1.id}"
+  router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
   port_id = "${huaweicloudstack_networking_port_v2.port_1.id}"
 }
 
