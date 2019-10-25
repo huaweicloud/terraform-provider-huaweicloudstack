@@ -212,7 +212,7 @@ func resourceBlockStorageVolumeV2Read(d *schema.ResourceData, meta interface{}) 
 
 	// NOTE: This tries to remove system metadata.
 	md := make(map[string]string)
-	var sys_keys = [2]string{"StorageType", "lun_wwn"}
+	var sys_keys = [2]string{"StorageType", "lun_wwn", "take_over_lun_wwn"}
 
 OUTER:
 	for key, val := range v.Metadata {
