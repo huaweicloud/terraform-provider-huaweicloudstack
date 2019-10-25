@@ -11,7 +11,6 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/networking/v2/ports"
 )
 
-// TestAccNetworkingV2VIPAssociate_basic is basic acc test.
 func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 	var vip ports.Port
 	var port1 ports.Port
@@ -36,7 +35,6 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 	})
 }
 
-// testAccCheckNetworkingV2VIPAssociateDestroy checks destory.
 func testAccCheckNetworkingV2VIPAssociateDestroy(s *terraform.State) error {
 	config := testAccProvider.Meta().(*Config)
 	networkingClient, err := config.networkingV2Client(OS_REGION_NAME)
@@ -132,7 +130,6 @@ func testAccCheckNetworkingV2VIPAssociateAssociated(p *ports.Port, vip *ports.Po
 	}
 }
 
-// TestAccNetworkingV2VIPAssociateConfig_basic is used to create.
 var TestAccNetworkingV2VIPAssociateConfig_basic = fmt.Sprintf(`
 resource "huaweicloudstack_networking_network_v2" "network_1" {
   name = "network_1"

@@ -160,7 +160,6 @@ func TestAccComputeV2Instance_bootFromVolumeForceNew(t *testing.T) {
 	})
 }
 
-// TODO: verify the personality really exists on the instance.
 func TestAccComputeV2Instance_personality(t *testing.T) {
 	var instance servers.Server
 
@@ -255,23 +254,6 @@ func TestAccComputeV2Instance_metadataRemove(t *testing.T) {
 						"huaweicloudstack_compute_instance_v2.instance_1", "all_metadata.foo", "bar"),
 					resource.TestCheckResourceAttr(
 						"huaweicloudstack_compute_instance_v2.instance_1", "all_metadata.ghi", "jkl"),
-				),
-			},
-		},
-	})
-}
-
-func TestAccComputeV2Instance_timeout(t *testing.T) {
-	var instance servers.Server
-	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckComputeV2InstanceDestroy,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccComputeV2Instance_timeout,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckComputeV2InstanceExists("huaweicloudstack_compute_instance_v2.instance_1", &instance),
 				),
 			},
 		},
@@ -773,33 +755,6 @@ resource "huaweicloudstack_compute_instance_v2" "instance_1" {
   metadata = {
     foo = "bar"
     ghi = "jkl"
-  }
-}
-`, OS_NETWORK_ID)
-
-/*
-var testAccComputeV2Instance_forceDelete = fmt.Sprintf(`
-resource "huaweicloudstack_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-  network {
-    uuid = "%s"
-  }
-  force_delete = true
-}
-`, OS_NETWORK_ID)
-*/
-
-var testAccComputeV2Instance_timeout = fmt.Sprintf(`
-resource "huaweicloudstack_compute_instance_v2" "instance_1" {
-  name = "instance_1"
-  security_groups = ["default"]
-  network {
-    uuid = "%s"
-  }
-
-  timeouts {
-    create = "10m"
   }
 }
 `, OS_NETWORK_ID)
