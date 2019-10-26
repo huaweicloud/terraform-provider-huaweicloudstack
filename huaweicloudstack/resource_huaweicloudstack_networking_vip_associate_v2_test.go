@@ -145,7 +145,7 @@ resource "huaweicloudstack_networking_subnet_v2" "subnet_1" {
 
 resource "huaweicloudstack_networking_router_interface_v2" "router_interface_1" {
   router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
-  subnet_id = "${huaweicloudstack_networking_subnet_v2.subnet_acc.id}"
+  subnet_id = "${huaweicloudstack_networking_subnet_v2.subnet_1.id}"
 }
 
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
