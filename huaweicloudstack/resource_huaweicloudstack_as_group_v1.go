@@ -408,12 +408,6 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(asgId)
 
-	//enable asg
-	enableResult := groups.Enable(asClient, asgId)
-	if enableResult.Err != nil {
-		return fmt.Errorf("Error enabling ASGroup %q: %s", asgId, enableResult.Err)
-	}
-	log.Printf("[DEBUG] Enable ASGroup %q success!", asgId)
 	// check all instances are inservice
 	if initNum > 0 {
 		timeout := d.Timeout(schema.TimeoutCreate)
