@@ -24,6 +24,11 @@ func TestAccComputeV2Keypair_basic(t *testing.T) {
 					testAccCheckComputeV2KeypairExists("huaweicloudstack_compute_keypair_v2.huaweicloudstack_acctest_kp", &keypair),
 				),
 			},
+			{
+				ResourceName:      "huaweicloudstack_compute_keypair_v2.huaweicloudstack_acctest_kp",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

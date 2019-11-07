@@ -30,6 +30,14 @@ func TestAccNetworkingV2Port_basic(t *testing.T) {
 					testAccCheckNetworkingV2PortExists("huaweicloudstack_networking_port_v2.port_1", &port),
 				),
 			},
+			{
+				ResourceName:      "huaweicloudstack_networking_port_v2.port_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"fixed_ip",
+				},
+			},
 		},
 	})
 }

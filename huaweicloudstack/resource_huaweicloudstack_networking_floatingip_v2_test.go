@@ -25,6 +25,11 @@ func TestAccNetworkingV2FloatingIP_basic(t *testing.T) {
 					testAccCheckNetworkingV2FloatingIPExists("huaweicloudstack_networking_floatingip_v2.fip_1", &fip),
 				),
 			},
+			{
+				ResourceName:      "huaweicloudstack_networking_floatingip_v2.fip_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

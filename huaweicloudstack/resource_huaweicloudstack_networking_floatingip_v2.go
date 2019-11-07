@@ -62,11 +62,6 @@ func resourceNetworkingFloatingIPV2() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-			},
 		},
 	}
 }
@@ -85,14 +80,11 @@ func resourceNetworkFloatingIPV2Create(d *schema.ResourceData, meta interface{})
 	if len(poolID) == 0 {
 		return fmt.Errorf("No network found with name: %s", d.Get("pool").(string))
 	}
-	createOpts := FloatingIPCreateOpts{
-		floatingips.CreateOpts{
-			FloatingNetworkID: poolID,
-			PortID:            d.Get("port_id").(string),
-			TenantID:          d.Get("tenant_id").(string),
-			FixedIP:           d.Get("fixed_ip").(string),
-		},
-		MapValueSpecs(d),
+	createOpts := floatingips.CreateOpts{
+		FloatingNetworkID: poolID,
+		PortID:            d.Get("port_id").(string),
+		TenantID:          d.Get("tenant_id").(string),
+		FixedIP:           d.Get("fixed_ip").(string),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)
