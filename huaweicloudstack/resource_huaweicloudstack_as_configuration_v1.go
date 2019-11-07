@@ -18,7 +18,6 @@ func resourceASConfiguration() *schema.Resource {
 	return &schema.Resource{
 		Create: resourceASConfigurationCreate,
 		Read:   resourceASConfigurationRead,
-		Update: nil,
 		Delete: resourceASConfigurationDelete,
 
 		Schema: map[string]*schema.Schema{
