@@ -66,11 +66,6 @@ func resourceNetworkingRouterV2() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-			},
 		},
 	}
 }
@@ -82,12 +77,9 @@ func resourceNetworkingRouterV2Create(d *schema.ResourceData, meta interface{}) 
 		return fmt.Errorf("Error creating HuaweiCloudStack networking client: %s", err)
 	}
 
-	createOpts := RouterCreateOpts{
-		routers.CreateOpts{
-			Name:     d.Get("name").(string),
-			TenantID: d.Get("tenant_id").(string),
-		},
-		MapValueSpecs(d),
+	createOpts := routers.CreateOpts{
+		Name:     d.Get("name").(string),
+		TenantID: d.Get("tenant_id").(string),
 	}
 
 	if asuRaw, ok := d.GetOk("admin_state_up"); ok {

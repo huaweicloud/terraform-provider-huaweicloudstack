@@ -25,6 +25,11 @@ func TestAccComputeV2ServerGroup_basic(t *testing.T) {
 					testAccCheckComputeV2ServerGroupExists("huaweicloudstack_compute_servergroup_v2.sg_1", &sg),
 				),
 			},
+			{
+				ResourceName:      "huaweicloudstack_compute_servergroup_v2.sg_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }

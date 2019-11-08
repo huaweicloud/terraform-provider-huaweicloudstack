@@ -121,11 +121,6 @@ func resourceNetworkingSubnetV2() *schema.Resource {
 					},
 				},
 			},
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-			},
 		},
 	}
 }
@@ -139,18 +134,15 @@ func resourceNetworkingSubnetV2Create(d *schema.ResourceData, meta interface{}) 
 
 	log.Printf("[DEBUG] Checking Subnet 0 %s: network_id: %s", d.Id(), d.Get("network_id").(string))
 	_, nid := ExtractValSFromNid(d.Get("network_id").(string))
-	createOpts := SubnetCreateOpts{
-		subnets.CreateOpts{
-			NetworkID:       nid,
-			CIDR:            d.Get("cidr").(string),
-			Name:            d.Get("name").(string),
-			TenantID:        d.Get("tenant_id").(string),
-			AllocationPools: resourceSubnetAllocationPoolsV2(d),
-			DNSNameservers:  resourceSubnetDNSNameserversV2(d),
-			HostRoutes:      resourceSubnetHostRoutesV2(d),
-			EnableDHCP:      nil,
-		},
-		MapValueSpecs(d),
+	createOpts := subnets.CreateOpts{
+		NetworkID:       nid,
+		CIDR:            d.Get("cidr").(string),
+		Name:            d.Get("name").(string),
+		TenantID:        d.Get("tenant_id").(string),
+		AllocationPools: resourceSubnetAllocationPoolsV2(d),
+		DNSNameservers:  resourceSubnetDNSNameserversV2(d),
+		HostRoutes:      resourceSubnetHostRoutesV2(d),
+		EnableDHCP:      nil,
 	}
 
 	log.Printf("[DEBUG] Checking Subnet 1 %s: network_id: %s", d.Id(), d.Get("network_id").(string))
@@ -226,9 +218,19 @@ func resourceNetworkingSubnetV2Read(d *schema.ResourceData, meta interface{}) er
 	d.Set("tenant_id", s.TenantID)
 	d.Set("gateway_ip", s.GatewayIP)
 	d.Set("dns_nameservers", s.DNSNameservers)
-	d.Set("host_routes", s.HostRoutes)
 	d.Set("enable_dhcp", s.EnableDHCP)
 	d.Set("network_id", s.NetworkID)
+
+	// Set the host_routes
+	var hostRoutes []map[string]interface{}
+	for _, v := range s.HostRoutes {
+		route := make(map[string]interface{})
+		route["destination_cidr"] = v.DestinationCIDR
+		route["next_hop"] = v.NextHop
+
+		hostRoutes = append(hostRoutes, route)
+	}
+	d.Set("host_routes", hostRoutes)
 
 	// Set the allocation_pools
 	var allocationPools []map[string]interface{}

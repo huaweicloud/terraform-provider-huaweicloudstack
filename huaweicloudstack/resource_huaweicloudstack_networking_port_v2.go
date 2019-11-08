@@ -121,11 +121,6 @@ func resourceNetworkingPortV2() *schema.Resource {
 					},
 				},
 			},
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-			},
 			"all_fixed_ips": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -148,19 +143,16 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 		pAsu = &asu
 	}
 	sgs := resourcePortSecurityGroupsV2(d)
-	createOpts := PortCreateOpts{
-		ports.CreateOpts{
-			Name:                d.Get("name").(string),
-			AdminStateUp:        pAsu,
-			NetworkID:           id,
-			MACAddress:          d.Get("mac_address").(string),
-			TenantID:            d.Get("tenant_id").(string),
-			DeviceOwner:         d.Get("device_owner").(string),
-			DeviceID:            d.Get("device_id").(string),
-			FixedIPs:            resourcePortFixedIpsV2(d),
-			AllowedAddressPairs: resourceAllowedAddressPairsV2(d),
-		},
-		MapValueSpecs(d),
+	createOpts := ports.CreateOpts{
+		Name:                d.Get("name").(string),
+		AdminStateUp:        pAsu,
+		NetworkID:           id,
+		MACAddress:          d.Get("mac_address").(string),
+		TenantID:            d.Get("tenant_id").(string),
+		DeviceOwner:         d.Get("device_owner").(string),
+		DeviceID:            d.Get("device_id").(string),
+		FixedIPs:            resourcePortFixedIpsV2(d),
+		AllowedAddressPairs: resourceAllowedAddressPairsV2(d),
 	}
 	// do not pass "security_groups" parameter if there is no element, otherwise an error will be raised
 	if len(sgs) > 0 {

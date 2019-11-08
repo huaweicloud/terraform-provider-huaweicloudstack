@@ -168,6 +168,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 			},
 			"metadata": {
 				Type:     schema.TypeMap,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
 				ForceNew: false,
 			},
@@ -342,6 +343,7 @@ func resourceComputeInstanceV2() *schema.Resource {
 			},
 			"all_metadata": {
 				Type:     schema.TypeMap,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 				Computed: true,
 			},
 		},

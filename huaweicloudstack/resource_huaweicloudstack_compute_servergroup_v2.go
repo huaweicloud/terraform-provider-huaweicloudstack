@@ -41,11 +41,6 @@ func resourceComputeServerGroupV2() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"value_specs": {
-				Type:     schema.TypeMap,
-				Optional: true,
-				ForceNew: true,
-			},
 		},
 	}
 }
@@ -57,12 +52,9 @@ func resourceComputeServerGroupV2Create(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error creating HuaweiCloudStack compute client: %s", err)
 	}
 
-	createOpts := ServerGroupCreateOpts{
-		servergroups.CreateOpts{
-			Name:     d.Get("name").(string),
-			Policies: resourceServerGroupPoliciesV2(d),
-		},
-		MapValueSpecs(d),
+	createOpts := servergroups.CreateOpts{
+		Name:     d.Get("name").(string),
+		Policies: resourceServerGroupPoliciesV2(d),
 	}
 
 	log.Printf("[DEBUG] Create Options: %#v", createOpts)

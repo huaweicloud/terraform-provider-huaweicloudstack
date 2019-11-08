@@ -29,6 +29,11 @@ func TestAccComputeV2FloatingIPAssociate_basic(t *testing.T) {
 					testAccCheckComputeV2FloatingIPAssociateAssociated(&fip, &instance, 1),
 				),
 			},
+			{
+				ResourceName:      "huaweicloudstack_compute_floatingip_associate_v2.fip_1",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
