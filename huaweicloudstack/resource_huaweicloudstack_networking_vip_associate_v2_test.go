@@ -5,6 +5,7 @@ import (
 	"log"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	"github.com/huaweicloud/golangsdk"
@@ -15,6 +16,7 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 	var vip ports.Port
 	var port1 ports.Port
 	var port2 ports.Port
+	var routerName = fmt.Sprintf("acc_router_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -22,7 +24,7 @@ func TestAccNetworkingV2VIPAssociate_basic(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkingV2VIPAssociateDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: TestAccNetworkingV2VIPAssociateConfig_basic,
+				Config: testAccNetworkingV2VIPAssociateConfig_basic(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2PortExists("huaweicloudstack_networking_port_v2.port_1", &port1),
 					testAccCheckNetworkingV2PortExists("huaweicloudstack_networking_port_v2.port_2", &port2),
@@ -130,7 +132,8 @@ func testAccCheckNetworkingV2VIPAssociateAssociated(p *ports.Port, vip *ports.Po
 	}
 }
 
-var TestAccNetworkingV2VIPAssociateConfig_basic = fmt.Sprintf(`
+func testAccNetworkingV2VIPAssociateConfig_basic(routerName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
@@ -149,7 +152,7 @@ resource "huaweicloudstack_networking_router_interface_v2" "router_interface_1" 
 }
 
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
-  name = "router_acc"
+  name = "%s"
   external_gateway = "%s"
 }
 
@@ -200,4 +203,5 @@ resource "huaweicloudstack_networking_vip_associate_v2" "vip_associate_1" {
   vip_id = "${huaweicloudstack_networking_vip_v2.vip_1.id}"
   port_ids = ["${huaweicloudstack_networking_port_v2.port_1.id}", "${huaweicloudstack_networking_port_v2.port_2.id}"]
 }
-`, OS_EXTGW_ID)
+`, routerName, OS_EXTGW_ID)
+}

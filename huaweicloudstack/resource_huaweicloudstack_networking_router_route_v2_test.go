@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -16,6 +17,7 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 	var router routers.Router
 	var network [2]networks.Network
 	var subnet [2]subnets.Subnet
+	var routerName = fmt.Sprintf("acc_router_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -23,7 +25,7 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkingV2RouterRouteDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingV2RouterRoute_create,
+				Config: testAccNetworkingV2RouterRoute_create(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_acc", &router),
 					testAccCheckNetworkingV2NetworkExists(
@@ -43,7 +45,7 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccNetworkingV2RouterRoute_update,
+				Config: testAccNetworkingV2RouterRoute_update(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2RouterRouteExists(
 						"huaweicloudstack_networking_router_route_v2.router_route_1"),
@@ -52,7 +54,7 @@ func TestAccNetworkingV2RouterRoute_basic(t *testing.T) {
 				),
 			},
 			{
-				Config: testAccNetworkingV2RouterRoute_destroy,
+				Config: testAccNetworkingV2RouterRoute_destroy(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2RouterRouteEmpty("huaweicloudstack_networking_router_v2.router_acc"),
 				),
@@ -170,9 +172,10 @@ func testAccCheckNetworkingV2RouterRouteDestroy(s *terraform.State) error {
 	return nil
 }
 
-const testAccNetworkingV2RouterRoute_create = `
+func testAccNetworkingV2RouterRoute_create(routerName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
-  name = "router_acc"
+  name = "%s"
   admin_state_up = "true"
 }
 
@@ -237,11 +240,13 @@ resource "huaweicloudstack_networking_router_route_v2" "router_route_1" {
   depends_on = ["huaweicloudstack_networking_router_interface_v2.int_1"]
   router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
 }
-`
+`, routerName)
+}
 
-const testAccNetworkingV2RouterRoute_update = `
+func testAccNetworkingV2RouterRoute_update(routerName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
-  name = "router_acc"
+  name = "%s"
   admin_state_up = "true"
 }
 
@@ -314,11 +319,13 @@ resource "huaweicloudstack_networking_router_route_v2" "router_route_2" {
   depends_on = ["huaweicloudstack_networking_router_interface_v2.int_2"]
   router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
 }
-`
+`, routerName)
+}
 
-const testAccNetworkingV2RouterRoute_destroy = `
+func testAccNetworkingV2RouterRoute_destroy(routerName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
-  name = "router_acc"
+  name = "%s"
   admin_state_up = "true"
 }
 
@@ -375,4 +382,5 @@ resource "huaweicloudstack_networking_router_interface_v2" "int_2" {
   router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
   port_id = "${huaweicloudstack_networking_port_v2.port_2.id}"
 }
-`
+`, routerName)
+}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -46,6 +47,7 @@ func TestAccNetworkingV2Network_netstack(t *testing.T) {
 	var network networks.Network
 	var subnet subnets.Subnet
 	var router routers.Router
+	var routerName = fmt.Sprintf("acc_router_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -53,7 +55,7 @@ func TestAccNetworkingV2Network_netstack(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkingV2NetworkDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingV2Network_netstack,
+				Config: testAccNetworkingV2Network_netstack(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2NetworkExists("huaweicloudstack_networking_network_v2.network_1", &network),
 					testAccCheckNetworkingV2SubnetExists("huaweicloudstack_networking_subnet_v2.subnet_1", &subnet),
@@ -152,12 +154,11 @@ resource "huaweicloudstack_networking_network_v2" "network_1" {
 const testAccNetworkingV2Network_update = `
 resource "huaweicloudstack_networking_network_v2" "network_1" {
   name = "network_2"
-  # Can't do this to a network on OTC
-  #admin_state_up = "false"
 }
 `
 
-const testAccNetworkingV2Network_netstack = `
+func testAccNetworkingV2Network_netstack(routerName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_network_v2" "network_1" {
   name = "network_1"
   admin_state_up = "true"
@@ -171,14 +172,15 @@ resource "huaweicloudstack_networking_subnet_v2" "subnet_1" {
 }
 
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
-  name = "router_acc"
+  name = "%s"
 }
 
 resource "huaweicloudstack_networking_router_interface_v2" "ri_1" {
   router_id = "${huaweicloudstack_networking_router_v2.router_acc.id}"
   subnet_id = "${huaweicloudstack_networking_subnet_v2.subnet_1.id}"
 }
-`
+`, routerName)
+}
 
 const testAccNetworkingV2Network_fullstack = `
 resource "huaweicloudstack_networking_network_v2" "network_1" {

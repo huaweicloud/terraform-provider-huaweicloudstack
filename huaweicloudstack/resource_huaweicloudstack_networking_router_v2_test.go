@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 
@@ -12,6 +13,7 @@ import (
 
 func TestAccNetworkingV2Router_basic(t *testing.T) {
 	var router routers.Router
+	var routerName = fmt.Sprintf("acc_router_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -19,16 +21,16 @@ func TestAccNetworkingV2Router_basic(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkingV2RouterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingV2Router_basic,
+				Config: testAccNetworkingV2Router_basic(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_acc", &router),
 				),
 			},
 			{
-				Config: testAccNetworkingV2Router_update,
+				Config: testAccNetworkingV2Router_update(routerName + "_update"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"huaweicloudstack_networking_router_v2.router_acc", "name", "router_acc_update"),
+						"huaweicloudstack_networking_router_v2.router_acc", "name", routerName+"_update"),
 				),
 			},
 		},
@@ -37,6 +39,7 @@ func TestAccNetworkingV2Router_basic(t *testing.T) {
 
 func TestAccNetworkingV2Router_update_external_gw(t *testing.T) {
 	var router routers.Router
+	var routerName = fmt.Sprintf("dcs_instance_%s", acctest.RandString(5))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
@@ -44,13 +47,13 @@ func TestAccNetworkingV2Router_update_external_gw(t *testing.T) {
 		CheckDestroy: testAccCheckNetworkingV2RouterDestroy,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccNetworkingV2Router_update_external_gw_1,
+				Config: testAccNetworkingV2Router_update_external_gw_1(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingV2RouterExists("huaweicloudstack_networking_router_v2.router_acc", &router),
 				),
 			},
 			{
-				Config: testAccNetworkingV2Router_update_external_gw_2,
+				Config: testAccNetworkingV2Router_update_external_gw_2(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"huaweicloudstack_networking_router_v2.router_acc", "external_gateway", OS_EXTGW_ID),
@@ -113,35 +116,43 @@ func testAccCheckNetworkingV2RouterExists(n string, router *routers.Router) reso
 	}
 }
 
-const testAccNetworkingV2Router_basic = `
+func testAccNetworkingV2Router_basic(routerName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
-	name = "router_acc"
+	name = "%s"
 	admin_state_up = "true"
 	distributed = "false"
 }
-`
+`, routerName)
+}
 
-const testAccNetworkingV2Router_update = `
+func testAccNetworkingV2Router_update(routerName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
-	name = "router_acc_update"
+	name = "%s"
 	admin_state_up = "true"
 	distributed = "false"
 }
-`
+`, routerName)
+}
 
-const testAccNetworkingV2Router_update_external_gw_1 = `
+func testAccNetworkingV2Router_update_external_gw_1(routerName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
-	name = "router_acc"
+	name = "%s"
 	admin_state_up = "true"
 	distributed = "false"
 }
-`
+`, routerName)
+}
 
-var testAccNetworkingV2Router_update_external_gw_2 = fmt.Sprintf(`
+func testAccNetworkingV2Router_update_external_gw_2(routerName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_router_v2" "router_acc" {
-	name = "router_acc"
+	name = "%s"
 	admin_state_up = "true"
 	distributed = "false"
 	external_gateway = "%s"
 }
-`, OS_EXTGW_ID)
+`, routerName, OS_EXTGW_ID)
+}
