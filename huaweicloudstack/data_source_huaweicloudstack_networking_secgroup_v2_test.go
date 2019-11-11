@@ -4,24 +4,26 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 )
 
 func TestAccHuaweiCloudStackNetworkingSecGroupV2DataSource_basic(t *testing.T) {
+	var secName = fmt.Sprintf("acc_sec_%s", acctest.RandString(5))
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_group,
+				Config: testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_group(secName),
 			},
 			{
-				Config: testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_basic,
+				Config: testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_basic(secName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSecGroupV2DataSourceID("data.huaweicloudstack_networking_secgroup_v2.secgroup_1"),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloudstack_networking_secgroup_v2.secgroup_1", "name", "huaweicloudstack_acctest_secgroup"),
+						"data.huaweicloudstack_networking_secgroup_v2.secgroup_1", "name", secName),
 				),
 			},
 		},
@@ -29,19 +31,20 @@ func TestAccHuaweiCloudStackNetworkingSecGroupV2DataSource_basic(t *testing.T) {
 }
 
 func TestAccHuaweiCloudStackNetworkingSecGroupV2DataSource_secGroupID(t *testing.T) {
+	var secName = fmt.Sprintf("acc_sec_%s", acctest.RandString(5))
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { testAccPreCheck(t) },
 		Providers: testAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_group,
+				Config: testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_group(secName),
 			},
 			{
-				Config: testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_secGroupID,
+				Config: testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_secGroupID(secName),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckNetworkingSecGroupV2DataSourceID("data.huaweicloudstack_networking_secgroup_v2.secgroup_1"),
 					resource.TestCheckResourceAttr(
-						"data.huaweicloudstack_networking_secgroup_v2.secgroup_1", "name", "huaweicloudstack_acctest_secgroup"),
+						"data.huaweicloudstack_networking_secgroup_v2.secgroup_1", "name", secName),
 				),
 			},
 		},
@@ -63,25 +66,37 @@ func testAccCheckNetworkingSecGroupV2DataSourceID(n string) resource.TestCheckFu
 	}
 }
 
-const testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_group = `
+func testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_group(secName string) string {
+	return fmt.Sprintf(`
 resource "huaweicloudstack_networking_secgroup_v2" "secgroup_1" {
-        name        = "huaweicloudstack_acctest_secgroup"
-	description = "My neutron security group for huaweicloudstack acctest"
+  name        = "%s"
+  description = "My neutron security group for huaweicloudstack acctest"
 }
-`
+`, secName)
+}
 
-var testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_basic = fmt.Sprintf(`
-%s
+func testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_basic(secName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloudstack_networking_secgroup_v2" "secgroup_1" {
+  name        = "%s"
+  description = "My neutron security group for huaweicloudstack acctest"
+}
 
 data "huaweicloudstack_networking_secgroup_v2" "secgroup_1" {
 	name = "${huaweicloudstack_networking_secgroup_v2.secgroup_1.name}"
 }
-`, testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_group)
+`, secName)
+}
 
-var testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_secGroupID = fmt.Sprintf(`
-%s
+func testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_secGroupID(secName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloudstack_networking_secgroup_v2" "secgroup_1" {
+  name        = "%s"
+  description = "My neutron security group for huaweicloudstack acctest"
+}
 
 data "huaweicloudstack_networking_secgroup_v2" "secgroup_1" {
 	secgroup_id = "${huaweicloudstack_networking_secgroup_v2.secgroup_1.id}"
 }
-`, testAccHuaweiCloudStackNetworkingSecGroupV2DataSource_group)
+`, secName)
+}
