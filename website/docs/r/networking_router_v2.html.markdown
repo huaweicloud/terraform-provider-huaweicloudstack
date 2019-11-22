@@ -57,8 +57,6 @@ The following arguments are supported:
 * `tenant_id` - (Optional) The owner of the floating IP. Required if admin wants
     to create a router for another tenant. Changing this creates a new router.
 
-* `value_specs` - (Optional) Map of additional driver-specific options.
-
 * `availability_zone_hints` -  (Optional) An availability zone is used to make 
     network resources highly available. Used for resources with high availability so that they are scheduled on different availability zones. Changing
     this creates a new router.
@@ -81,7 +79,6 @@ The following attributes are exported:
 * `enable_snat` - See Argument Reference above.
 * `external_fixed_ip` - See Argument Reference above.
 * `tenant_id` - See Argument Reference above.
-* `value_specs` - See Argument Reference above.
 * `availability_zone_hints` - See Argument Reference above.
 
 ## Import
