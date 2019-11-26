@@ -49,23 +49,8 @@ The following arguments are supported:
     "true" or "false". An `external_network_id` has to be set in order to
     set this property. Changing this updates the `enable_snat` of the router.
 
-* `external_fixed_ip` - (Optional) An external fixed IP for the router. This
-    can be repeated. The structure is described below. An `external_network_id`
-    has to be set in order to set this property. Changing this updates the
-    external fixed IPs of the router.
-
 * `tenant_id` - (Optional) The owner of the floating IP. Required if admin wants
     to create a router for another tenant. Changing this creates a new router.
-
-* `availability_zone_hints` -  (Optional) An availability zone is used to make 
-    network resources highly available. Used for resources with high availability so that they are scheduled on different availability zones. Changing
-    this creates a new router.
-
-The `external_fixed_ip` block supports:
-
-* `subnet_id` - (Optional) Subnet in which the fixed IP belongs to.
-
-* `ip_address` - (Optional) The IP address to set on the router.
 
 ## Attributes Reference
 
@@ -77,9 +62,7 @@ The following attributes are exported:
 * `admin_state_up` - See Argument Reference above.
 * `external_network_id` - See Argument Reference above.
 * `enable_snat` - See Argument Reference above.
-* `external_fixed_ip` - See Argument Reference above.
 * `tenant_id` - See Argument Reference above.
-* `availability_zone_hints` - See Argument Reference above.
 
 ## Import
 

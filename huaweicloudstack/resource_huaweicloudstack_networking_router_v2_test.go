@@ -56,7 +56,7 @@ func TestAccNetworkingV2Router_update_external_gw(t *testing.T) {
 				Config: testAccNetworkingV2Router_update_external_gw_2(routerName),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
-						"huaweicloudstack_networking_router_v2.router_acc", "external_gateway", OS_EXTGW_ID),
+						"huaweicloudstack_networking_router_v2.router_acc", "external_network_id", OS_EXTGW_ID),
 				),
 			},
 		},
@@ -152,7 +152,7 @@ resource "huaweicloudstack_networking_router_v2" "router_acc" {
 	name = "%s"
 	admin_state_up = "true"
 	distributed = "false"
-	external_gateway = "%s"
+	external_network_id = "%s"
 }
 `, routerName, OS_EXTGW_ID)
 }
