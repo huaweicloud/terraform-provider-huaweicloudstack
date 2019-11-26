@@ -79,15 +79,9 @@ The following arguments are supported:
     create a network for another tenant. Changing this creates a new network.
 
 * `admin_state_up` - (Optional) The administrative state of the network.
-    Acceptable values are "true" and "false". Changing this value updates the
-    state of the existing network.
+    The value must be "true".
 
 * `segments` - (Optional) An array of one or more provider segment objects.
-
-* `availability_zone_hints` -  (Optional) An availability zone is used to make
-    network resources highly available. Used for resources with high availability
-    so that they are scheduled on different availability zones. Changing this 
-    creates a new network.
 
 The `segments` block supports:
 
@@ -104,7 +98,6 @@ The following attributes are exported:
 * `shared` - See Argument Reference above.
 * `tenant_id` - See Argument Reference above.
 * `admin_state_up` - See Argument Reference above.
-* `availability_zone_hints` - See Argument Reference above.
 
 ## Import
 
