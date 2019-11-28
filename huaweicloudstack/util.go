@@ -204,3 +204,23 @@ func convertStructToMap(obj interface{}, nameMap map[string]string) (map[string]
 func looksLikeJsonString(s interface{}) bool {
 	return regexp.MustCompile(`^\s*{`).MatchString(s.(string))
 }
+
+func validateSubnetV2IPv6Mode(v interface{}, k string) (ws []string, errors []error) {
+	value := v.(string)
+	if value != "slaac" && value != "dhcpv6-stateful" && value != "dhcpv6-stateless" {
+		err := fmt.Errorf("%s must be one of slaac, dhcpv6-stateful or dhcpv6-stateless", k)
+		errors = append(errors, err)
+	}
+	return
+}
+
+func expandToStringSlice(v []interface{}) []string {
+	s := make([]string, len(v))
+	for i, val := range v {
+		if strVal, ok := val.(string); ok {
+			s[i] = strVal
+		}
+	}
+
+	return s
+}
