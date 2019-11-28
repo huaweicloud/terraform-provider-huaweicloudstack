@@ -300,7 +300,7 @@ The following arguments are supported:
     instance to networks using Ports, place the security groups on the Port
     and not the instance.
 
-* `availability_zone` - (Required) The availability zone in which to create
+* `availability_zone` - (Optional) The availability zone in which to create
     the server. Changing this creates a new server.
 
 * `network` - (Optional) An array of one or more networks to attach to the
