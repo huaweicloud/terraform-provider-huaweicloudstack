@@ -78,6 +78,11 @@ func resourceNetworkingPortV2() *schema.Resource {
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
 			},
+			"no_security_groups": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: false,
+			},
 			"device_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -126,6 +131,12 @@ func resourceNetworkingPortV2() *schema.Resource {
 				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
+			"all_security_group_ids": {
+				Type:     schema.TypeSet,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
 		},
 	}
 }
@@ -137,12 +148,22 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error creating HuaweiCloudStack networking client: %s", err)
 	}
 
+	var securityGroups []string
+	v := d.Get("security_group_ids")
+	securityGroups = resourcePortSecurityGroupsV2(v.(*schema.Set))
+	noSecurityGroups := d.Get("no_security_groups").(bool)
+
+	// Check and make sure an invalid security group configuration wasn't given.
+	if noSecurityGroups && len(securityGroups) > 0 {
+		return fmt.Errorf("Cannot have both no_security_groups and security_group_ids set")
+	}
+
 	asu, id := ExtractValFromNid(d.Get("network_id").(string))
 	pAsu := resourcePortAdminStateUpV2(d)
 	if !asu {
 		pAsu = &asu
 	}
-	sgs := resourcePortSecurityGroupsV2(d)
+
 	createOpts := ports.CreateOpts{
 		Name:                d.Get("name").(string),
 		AdminStateUp:        pAsu,
@@ -154,15 +175,22 @@ func resourceNetworkingPortV2Create(d *schema.ResourceData, meta interface{}) er
 		FixedIPs:            resourcePortFixedIpsV2(d),
 		AllowedAddressPairs: resourceAllowedAddressPairsV2(d),
 	}
-	// do not pass "security_groups" parameter if there is no element, otherwise an error will be raised
-	if len(sgs) > 0 {
-		createOpts.SecurityGroups = &sgs
+
+	if noSecurityGroups {
+		securityGroups = []string{}
+		createOpts.SecurityGroups = &securityGroups
 	}
 
-	log.Printf("[DEBUG] Create Options: %#v", createOpts)
+	// Only set SecurityGroups if one was specified.
+	// Otherwise this would mimic the no_security_groups action.
+	if len(securityGroups) > 0 {
+		createOpts.SecurityGroups = &securityGroups
+	}
+
+	log.Printf("[DEBUG] huaweicloudstack_networking_port_v2 create options: %#v", createOpts)
 	p, err := ports.Create(networkingClient, createOpts).Extract()
 	if err != nil {
-		return fmt.Errorf("Error creating HuaweiCloudStack Neutron network: %s", err)
+		return fmt.Errorf("Error creating HuaweiCloudStack Neutron port: %s", err)
 	}
 	log.Printf("[INFO] Network ID: %s", p.ID)
 
@@ -205,7 +233,6 @@ func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) erro
 	d.Set("mac_address", p.MACAddress)
 	d.Set("tenant_id", p.TenantID)
 	d.Set("device_owner", p.DeviceOwner)
-	d.Set("security_group_ids", p.SecurityGroups)
 	d.Set("device_id", p.DeviceID)
 
 	// Create a slice of all returned Fixed IPs.
@@ -216,6 +243,11 @@ func resourceNetworkingPortV2Read(d *schema.ResourceData, meta interface{}) erro
 		ips = append(ips, ipObject.IPAddress)
 	}
 	d.Set("all_fixed_ips", ips)
+
+	// Set all security groups.
+	// This can be different from what the user specified since
+	// the port can have the "default" group automatically applied.
+	d.Set("all_security_group_ids", p.SecurityGroups)
 
 	// Convert AllowedAddressPairs to list of map
 	var pairs []map[string]interface{}
@@ -239,15 +271,23 @@ func resourceNetworkingPortV2Update(d *schema.ResourceData, meta interface{}) er
 		return fmt.Errorf("Error creating HuaweiCloudStack networking client: %s", err)
 	}
 
+	v := d.Get("security_group_ids").(*schema.Set)
+	securityGroups := resourcePortSecurityGroupsV2(v)
+	noSecurityGroups := d.Get("no_security_groups").(bool)
+
+	// Check and make sure an invalid security group configuration wasn't given.
+	if noSecurityGroups && len(securityGroups) > 0 {
+		return fmt.Errorf("Cannot have both no_security_groups and security_group_ids set")
+	}
+
 	// security_group_ids and allowed_address_pairs are able to send empty arrays
 	// to denote the removal of each. But their default zero-value is translated
 	// to "null", which has been reported to cause problems in vendor-modified
 	// HuaweiCloudStack clouds. Therefore, we must set them in each request update.
 	addrPairs := resourceAllowedAddressPairsV2(d)
-	sg := resourcePortSecurityGroupsV2(d)
 	updateOpts := ports.UpdateOpts{
 		AllowedAddressPairs: &addrPairs,
-		SecurityGroups:      &sg,
+		SecurityGroups:      &securityGroups,
 	}
 
 	if d.HasChange("name") {
@@ -310,13 +350,12 @@ func resourceNetworkingPortV2Delete(d *schema.ResourceData, meta interface{}) er
 	return nil
 }
 
-func resourcePortSecurityGroupsV2(d *schema.ResourceData) []string {
-	rawSecurityGroups := d.Get("security_group_ids").(*schema.Set)
-	groups := make([]string, rawSecurityGroups.Len())
-	for i, raw := range rawSecurityGroups.List() {
-		groups[i] = raw.(string)
+func resourcePortSecurityGroupsV2(v *schema.Set) []string {
+	var securityGroups []string
+	for _, v := range v.List() {
+		securityGroups = append(securityGroups, v.(string))
 	}
-	return groups
+	return securityGroups
 }
 
 func resourcePortFixedIpsV2(d *schema.ResourceData) interface{} {
