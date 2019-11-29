@@ -488,7 +488,7 @@ resource "huaweicloudstack_networking_port_v2" "port_1" {
   name = "port_1"
   admin_state_up = "true"
   network_id = "${huaweicloudstack_networking_network_v2.network_1.id}"
-	security_group_ids = []
+  security_group_ids = []
 
   fixed_ip {
     subnet_id =  "${huaweicloudstack_networking_subnet_v2.subnet_1.id}"

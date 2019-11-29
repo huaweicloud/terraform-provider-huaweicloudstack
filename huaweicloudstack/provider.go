@@ -150,7 +150,9 @@ func Provider() terraform.ResourceProvider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloudstack_networking_network_v2":  dataSourceNetworkingNetworkV2(),
+			"huaweicloudstack_networking_port_v2":     dataSourceNetworkingPortV2(),
 			"huaweicloudstack_networking_secgroup_v2": dataSourceNetworkingSecGroupV2(),
+			"huaweicloudstack_networking_subnet_v2":   dataSourceNetworkingSubnetV2(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
