@@ -149,6 +149,7 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
+			"huaweicloudstack_images_image_v2":        dataSourceImagesImageV2(),
 			"huaweicloudstack_networking_network_v2":  dataSourceNetworkingNetworkV2(),
 			"huaweicloudstack_networking_port_v2":     dataSourceNetworkingPortV2(),
 			"huaweicloudstack_networking_secgroup_v2": dataSourceNetworkingSecGroupV2(),
