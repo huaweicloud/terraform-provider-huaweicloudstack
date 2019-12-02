@@ -25,23 +25,26 @@ resource "huaweicloudstack_networking_subnet_v2" "subnet_1" {
   ip_version = 4
 }
 
-resource "huaweicloudstack_compute_secgroup_v2" "secgroup_1" {
-  name        = "secgroup_1"
+resource "huaweicloudstack_networking_secgroup_v2" "secgroup_1" {
+  name = "secgroup_1"
   description = "a security group"
+}
 
-  rule {
-    from_port   = 22
-    to_port     = 22
-    ip_protocol = "tcp"
-    cidr        = "0.0.0.0/0"
-  }
+resource "huaweicloudstack_networking_secgroup_rule_v2" "secgroup_rule_1" {
+  direction = "ingress"
+  ethertype = "IPv4"
+  port_range_max = 22
+  port_range_min = 22
+  protocol = "tcp"
+  remote_ip_prefix = "0.0.0.0/0"
+  security_group_id = "${huaweicloudstack_networking_secgroup_v2.secgroup_1.id}"
 }
 
 resource "huaweicloudstack_networking_port_v2" "port_1" {
   name               = "port_1"
   network_id         = "${huaweicloudstack_networking_network_v2.network_1.id}"
   admin_state_up     = "true"
-  security_group_ids = ["${huaweicloudstack_compute_secgroup_v2.secgroup_1.id}"]
+  security_group_ids = ["${huaweicloudstack_networking_secgroup_v2.secgroup_1.id}"]
 
   fixed_ip {
     "subnet_id"  = "${huaweicloudstack_networking_subnet_v2.subnet_1.id}"
@@ -51,7 +54,7 @@ resource "huaweicloudstack_networking_port_v2" "port_1" {
 
 resource "huaweicloudstack_compute_instance_v2" "instance_1" {
   name            = "instance_1"
-  security_groups = ["${huaweicloudstack_compute_secgroup_v2.secgroup_1.name}"]
+  security_groups = ["${huaweicloudstack_networking_secgroup_v2.secgroup_1.name}"]
 
   network {
     port = "${huaweicloudstack_networking_port_v2.port_1.id}"
