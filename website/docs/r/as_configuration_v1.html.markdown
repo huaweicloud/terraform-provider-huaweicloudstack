@@ -117,7 +117,7 @@ The `disk` block supports:
     and the data disk size ranges from 10 to 32768.
 
 * `volume_type` - (Required) The disk type, which must be the same as the disk type available in the system.
-    The options include `SATA` (common I/O disk type) and `SSD` (ultra-high I/O disk type).
+    The available types are `SSD`, `SAS`, `SATA` or other types defined in CCS.
 
 * `disk_type` - (Required) Whether the disk is a system disk or a data disk. Option `DATA` indicates
     a data disk. option `SYS` indicates a system disk.

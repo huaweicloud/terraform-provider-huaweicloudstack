@@ -82,9 +82,8 @@ func resourceASConfiguration() *schema.Resource {
 										Required: true,
 									},
 									"volume_type": {
-										Type:         schema.TypeString,
-										Required:     true,
-										ValidateFunc: resourceASConfigurationValidateVolumeType,
+										Type:     schema.TypeString,
+										Required: true,
 									},
 									"disk_type": {
 										Type:         schema.TypeString,
@@ -416,7 +415,7 @@ func resourceASConfigurationValidateDiskType(v interface{}, k string) (ws []stri
 	return
 }
 
-var VolumeTypes = [2]string{"SATA", "SSD"}
+var VolumeTypes = [3]string{"SAS", "SATA", "SSD"}
 
 func resourceASConfigurationValidateVolumeType(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
