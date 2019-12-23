@@ -38,9 +38,9 @@ func resourceListenerV2() *schema.Resource {
 				ForceNew: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
-					if value != "TCP" && value != "HTTP" && value != "HTTPS" && value != "TERMINATED_HTTPS" {
+					if value != "TCP" && value != "UDP" && value != "HTTP" && value != "TERMINATED_HTTPS" {
 						errors = append(errors, fmt.Errorf(
-							"Only 'TCP', 'HTTP', 'HTTPS' and 'TERMINATED_HTTPS' are supported values for 'protocol'"))
+							"Only 'TCP', 'UDP', 'HTTP' and 'TERMINATED_HTTPS' are supported values for 'protocol'"))
 					}
 					return
 				},
@@ -94,12 +94,6 @@ func resourceListenerV2() *schema.Resource {
 				Optional: true,
 			},
 
-			"sni_container_refs": {
-				Type:     schema.TypeList,
-				Optional: true,
-				Elem:     &schema.Schema{Type: schema.TypeString},
-			},
-
 			"admin_state_up": {
 				Type:     schema.TypeBool,
 				Default:  true,
@@ -117,12 +111,6 @@ func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	adminStateUp := d.Get("admin_state_up").(bool)
-	var sniContainerRefs []string
-	if raw, ok := d.GetOk("sni_container_refs"); ok {
-		for _, v := range raw.([]interface{}) {
-			sniContainerRefs = append(sniContainerRefs, v.(string))
-		}
-	}
 	createOpts := listeners.CreateOpts{
 		Protocol:               listeners.Protocol(d.Get("protocol").(string)),
 		ProtocolPort:           d.Get("protocol_port").(int),
@@ -132,7 +120,6 @@ func resourceListenerV2Create(d *schema.ResourceData, meta interface{}) error {
 		DefaultPoolID:          d.Get("default_pool_id").(string),
 		Description:            d.Get("description").(string),
 		DefaultTlsContainerRef: d.Get("default_tls_container_ref").(string),
-		SniContainerRefs:       sniContainerRefs,
 		AdminStateUp:           &adminStateUp,
 	}
 
@@ -197,7 +184,6 @@ func resourceListenerV2Read(d *schema.ResourceData, meta interface{}) error {
 	d.Set("admin_state_up", listener.AdminStateUp)
 	d.Set("default_pool_id", listener.DefaultPoolID)
 	d.Set("connection_limit", listener.ConnLimit)
-	d.Set("sni_container_refs", listener.SniContainerRefs)
 	d.Set("default_tls_container_ref", listener.DefaultTlsContainerRef)
 	d.Set("region", GetRegion(d, config))
 
@@ -224,15 +210,6 @@ func resourceListenerV2Update(d *schema.ResourceData, meta interface{}) error {
 	}
 	if d.HasChange("default_tls_container_ref") {
 		updateOpts.DefaultTlsContainerRef = d.Get("default_tls_container_ref").(string)
-	}
-	if d.HasChange("sni_container_refs") {
-		var sniContainerRefs []string
-		if raw, ok := d.GetOk("sni_container_refs"); ok {
-			for _, v := range raw.([]interface{}) {
-				sniContainerRefs = append(sniContainerRefs, v.(string))
-			}
-		}
-		updateOpts.SniContainerRefs = sniContainerRefs
 	}
 	if d.HasChange("admin_state_up") {
 		asu := d.Get("admin_state_up").(bool)

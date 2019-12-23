@@ -25,18 +25,19 @@ resource "huaweicloudstack_lb_listener_v2" "listener_1" {
 The following arguments are supported:
 
 * `region` - (Optional) The region in which to obtain the V2 Networking client.
-    A Networking client is needed to create an . If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    Listener.
+    If omitted, the `region` argument of the provider is used.
+    Changing this creates a new Listener.
 
-* `protocol` - (Required) The protocol - can either be TCP, HTTP, HTTPS or TERMINATED_HTTPS.
+* `protocol` - (Required) The listening protocol. Converged ELB in Region Type I and Region Type II
+    supports TCP, UDP, HTTP, and TERMINATED_HTTPS. Non-converged ELB in Region Type II supports TCP and HTTP.
     Changing this creates a new Listener.
 
 * `protocol_port` - (Required) The port on which to listen for client traffic.
+    Must be an integer in the range of 1-65535.
     Changing this creates a new Listener.
 
 * `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns
-    the Listener.  Only administrative users can specify a tenant UUID
+    the Listener. Only administrative users can specify a tenant UUID
     other than their own. Changing this creates a new Listener.
 
 * `loadbalancer_id` - (Required) The load balancer on which to provision this
@@ -51,18 +52,12 @@ The following arguments are supported:
 * `description` - (Optional) Human-readable description for the Listener.
 
 * `connection_limit` - (Optional) The maximum number of connections allowed
-    for the Listener.
+    for the Listener. A valid value is from -1 to 2147483647.
+    The default value for this attribute will be -1, indicating an infinite limit.
 
 * `default_tls_container_ref` - (Optional) A reference to a Barbican Secrets
-    container which stores TLS information. This is required if the protocol
-    is `TERMINATED_HTTPS`. See
-    [here](https://wiki.openstack.org/wiki/Network/LBaaS/docs/how-to-create-tls-loadbalancer)
-    for more information.
-
-* `sni_container_refs` - (Optional) A list of references to Barbican Secrets
-    containers which store SNI information. See
-    [here](https://wiki.openstack.org/wiki/Network/LBaaS/docs/how-to-create-tls-loadbalancer)
-    for more information.
+    container which stores TLS information. This is required if the protocol is `TERMINATED_HTTPS`.
+    For converged ELB in Region Type I and Region Type II, enter a certificate ID.
 
 * `admin_state_up` - (Optional) The administrative state of the Listener.
     A valid value is true (UP) or false (DOWN).
@@ -80,5 +75,4 @@ The following attributes are exported:
 * `description` - See Argument Reference above.
 * `connection_limit` - See Argument Reference above.
 * `default_tls_container_ref` - See Argument Reference above.
-* `sni_container_refs` - See Argument Reference above.
 * `admin_state_up` - See Argument Reference above.
