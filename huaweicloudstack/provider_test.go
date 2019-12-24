@@ -165,3 +165,11 @@ func testAccCCEKeyPairPreCheck(t *testing.T) {
 		t.Skip("OS_KEYPAIR_NAME must be set for acceptance tests")
 	}
 }
+
+func testAccPreCheckULB(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_SUBNET_ID == "" {
+		t.Skip("OS_SUBNET must be set for LB acceptance tests")
+	}
+}
