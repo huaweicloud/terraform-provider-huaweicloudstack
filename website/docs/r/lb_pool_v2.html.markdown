@@ -19,7 +19,7 @@ resource "huaweicloudstack_lb_pool_v2" "pool_1" {
   listener_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
 
   persistence {
-    type        = "HTTP_COOKIE"
+    type        = "APP_COOKIE"
     cookie_name = "testCookie"
   }
 }
@@ -29,20 +29,11 @@ resource "huaweicloudstack_lb_pool_v2" "pool_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
-    A Networking client is needed to create an . If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    pool.
-
-* `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns
-    the pool.  Only administrative users can specify a tenant UUID
-    other than their own. Changing this creates a new pool.
-
 * `name` - (Optional) Human-readable name for the pool.
 
 * `description` - (Optional) Human-readable description for the pool.
 
-* `protocol` = (Required) The protocol - can either be TCP, HTTP or HTTPS.
+* `protocol` - (Required) The IP protocol, can either be TCP, HTTP or UDP.
     Changing this creates a new pool.
 
 * `loadbalancer_id` - (Optional) The load balancer on which to provision this
@@ -51,7 +42,7 @@ The following arguments are supported:
 
 * `listener_id` - (Optional) The Listener on which the members of the pool
     will be associated with. Changing this creates a new pool.
-	Note:  One of LoadbalancerID or ListenerID must be provided.
+    Note:  One of LoadbalancerID or ListenerID must be provided.
 
 * `lb_method` - (Required) The load balancing algorithm to
     distribute traffic to the pool's members. Must be one of
@@ -70,14 +61,13 @@ The `persistence` argument supports:
     supports SOURCE_IP, HTTP_COOKIE, and APP_COOKIE.
 
 * `cookie_name` - (Optional) The name of the cookie if persistence mode is set
-    appropriately. Required if `type = APP_COOKIE`.
+    appropriately. It's only supported in the `APP_COOKIE` type.
 
 ## Attributes Reference
 
 The following attributes are exported:
 
 * `id` - The unique ID for the pool.
-* `tenant_id` - See Argument Reference above.
 * `name` - See Argument Reference above.
 * `description` - See Argument Reference above.
 * `protocol` - See Argument Reference above.

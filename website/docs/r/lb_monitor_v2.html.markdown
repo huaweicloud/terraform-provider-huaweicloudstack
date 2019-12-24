@@ -15,10 +15,11 @@ Manages a V2 monitor resource within HuaweiCloudStack.
 ```hcl
 resource "huaweicloudstack_lb_monitor_v2" "monitor_1" {
   pool_id     = "${huaweicloudstack_lb_pool_v2.pool_1.id}"
-  type        = "PING"
+  type        = "HTTP"
   delay       = 20
   timeout     = 10
   max_retries = 5
+  url_path    = "/"
 }
 ```
 
@@ -26,24 +27,17 @@ resource "huaweicloudstack_lb_monitor_v2" "monitor_1" {
 
 The following arguments are supported:
 
-* `region` - (Optional) The region in which to obtain the V2 Networking client.
-    A Networking client is needed to create an . If omitted, the
-    `region` argument of the provider is used. Changing this creates a new
-    monitor.
-
 * `pool_id` - (Required) The id of the pool that this monitor will be assigned to.
 
 * `name` - (Optional) The Name of the Monitor.
 
-* `tenant_id` - (Optional) Required for admins. The UUID of the tenant who owns
-    the monitor.  Only administrative users can specify a tenant UUID
-    other than their own. Changing this creates a new monitor.
+* `type` - (Required) The type of protocol. Converged ELB in Region Type I and Region Type II
+    supports TCP, UDP_CONNECT, or HTTP. Non-converged ELB in Region Type II supports TCP, PING, or HTTP.
+    For Region Type I, if protocol of the listener is set to UDP, type of the health check must be set to UDP_CONNECT.
+    Changing this creates a new monitor.
 
-* `type` - (Required) The type of probe, which is PING, TCP, HTTP, or HTTPS,
-    that is sent by the load balancer to verify the member state. Changing this
-    creates a new monitor.
-
-* `delay` - (Required) The time, in seconds, between sending probes to members.
+* `delay` - (Required) The interval in seconds between health check.
+    A valid value is from 1 to 50.
 
 * `timeout` - (Required) Maximum number of seconds for a monitor to wait for a
     ping reply before it times out. The value must be less than the delay
@@ -53,14 +47,14 @@ The following arguments are supported:
     changing the member's status to INACTIVE. Must be a number between 1
     and 10.
 
-* `url_path` - (Optional) Required for HTTP(S) types. URI path that will be
-    accessed if monitor type is HTTP or HTTPS.
+* `url_path` - (Optional) Required for HTTP types. URI path that will be
+    accessed if monitor type is HTTP.
 
-*  `http_method` - (Optional) Required for HTTP(S) types. The HTTP method used
+*  `http_method` - (Optional) Required for HTTP types. The HTTP method used
     for requests by the monitor. If this attribute is not specified, it
     defaults to "GET".
 
-* `expected_codes` - (Optional) Required for HTTP(S) types. Expected HTTP codes
+* `expected_codes` - (Optional) Required for HTTP types. Expected HTTP codes
     for a passing HTTP(S) monitor. You can either specify a single status like
     "200", or a range like "200-202".
 
@@ -72,7 +66,6 @@ The following arguments are supported:
 The following attributes are exported:
 
 * `id` - The unique ID for the monitor.
-* `tenant_id` - See Argument Reference above.
 * `type` - See Argument Reference above.
 * `delay` - See Argument Reference above.
 * `timeout` - See Argument Reference above.
