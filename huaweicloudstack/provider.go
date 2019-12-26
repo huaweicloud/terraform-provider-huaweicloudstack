@@ -172,6 +172,8 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloudstack_lb_pool_v2":                         resourcePoolV2(),
 			"huaweicloudstack_lb_member_v2":                       resourceMemberV2(),
 			"huaweicloudstack_lb_monitor_v2":                      resourceMonitorV2(),
+			"huaweicloudstack_lb_l7policy_v2":                     resourceL7PolicyV2(),
+			"huaweicloudstack_lb_l7rule_v2":                       resourceL7RuleV2(),
 			"huaweicloudstack_networking_network_v2":              resourceNetworkingNetworkV2(),
 			"huaweicloudstack_networking_subnet_v2":               resourceNetworkingSubnetV2(),
 			"huaweicloudstack_networking_floatingip_v2":           resourceNetworkingFloatingIPV2(),
