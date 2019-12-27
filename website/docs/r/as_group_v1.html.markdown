@@ -125,10 +125,11 @@ The following arguments are supported:
 * `cool_down_time` - (Optional) The cooling duration (in seconds). The value ranges
     from 0 to 86400, and is 900 by default.
 
-* `lb_listener_id` - (Optional) The ELB listener IDs. The system supports up to
+* `lb_listener_id` - (Optional) The ELB (classic) listener IDs. The system supports up to
     three ELB listeners, the IDs of which are separated using a comma (,).
+    This argument is deprecated, using `lbaas_listeners` instead.
 
-* `lbaas_listeners` - (Optional) An array of one or more enhanced load balancer.
+* `lbaas_listeners` - (Optional) An array of one or more ELB (enhanced).
     The system supports the binding of up to three load balancers. The field is
     alternative to lb_listener_id.  The lbaas_listeners object structure is
     documented below.

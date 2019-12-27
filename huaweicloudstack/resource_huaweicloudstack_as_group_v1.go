@@ -81,16 +81,19 @@ func resourceASGroup() *schema.Resource {
 				Description:  "The cooling duration, in seconds.",
 			},
 			"lb_listener_id": {
-				Type:         schema.TypeString,
-				Optional:     true,
-				ForceNew:     false,
-				ValidateFunc: resourceASGroupValidateListenerId,
-				Description:  "The system supports the binding of up to three ELB listeners, the IDs of which are separated using a comma.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				ForceNew:      false,
+				ValidateFunc:  resourceASGroupValidateListenerId,
+				Description:   "The system supports the binding of up to three ELB listeners, the IDs of which are separated using a comma.",
+				Deprecated:    "Use lbaas_listeners instead",
+				ConflictsWith: []string{"lbaas_listeners"},
 			},
 			"lbaas_listeners": {
-				Type:     schema.TypeList,
-				MaxItems: 3,
-				Optional: true,
+				Type:          schema.TypeList,
+				MaxItems:      3,
+				Optional:      true,
+				ConflictsWith: []string{"lb_listener_id"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"listener_id": {
