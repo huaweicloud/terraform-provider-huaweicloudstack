@@ -414,7 +414,12 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 
 	minNum := d.Get("min_instance_number").(int)
 	maxNum := d.Get("max_instance_number").(int)
-	desireNum := d.Get("desire_instance_number").(int)
+	var desireNum int
+	if v, ok := d.GetOk("desire_instance_number"); ok {
+		desireNum = v.(int)
+	} else {
+		desireNum = minNum
+	}
 	log.Printf("[DEBUG] Min instance number is: %#v", minNum)
 	log.Printf("[DEBUG] Max instance number is: %#v", maxNum)
 	log.Printf("[DEBUG] Desire instance number is: %#v", desireNum)
@@ -551,17 +556,21 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error creating HuaweiCloudStack autoscaling client: %s", err)
 	}
 	d.Partial(true)
+	var desireNum int
+	minNum := d.Get("min_instance_number").(int)
+	maxNum := d.Get("max_instance_number").(int)
+	if v, ok := d.GetOk("desire_instance_number"); ok {
+		desireNum = v.(int)
+	} else {
+		desireNum = minNum
+	}
 	if d.HasChange("min_instance_number") || d.HasChange("max_instance_number") || d.HasChange("desire_instance_number") {
-		minNum := d.Get("min_instance_number").(int)
-		maxNum := d.Get("max_instance_number").(int)
-		desireNum := d.Get("desire_instance_number").(int)
 		log.Printf("[DEBUG] Min instance number is: %#v", minNum)
 		log.Printf("[DEBUG] Max instance number is: %#v", maxNum)
 		log.Printf("[DEBUG] Desire instance number is: %#v", desireNum)
 		if desireNum < minNum || desireNum > maxNum {
 			return fmt.Errorf("Invalid parameters: it should be min_instance_number<=desire_instance_number<=max_instance_number")
 		}
-
 	}
 
 	// disable AS Group
@@ -581,9 +590,9 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	updateOpts := groups_hcs.UpdateOpts{
 		Name:                      d.Get("scaling_group_name").(string),
 		ConfigurationID:           d.Get("scaling_configuration_id").(string),
-		DesireInstanceNumber:      d.Get("desire_instance_number").(int),
-		MinInstanceNumber:         d.Get("min_instance_number").(int),
-		MaxInstanceNumber:         d.Get("max_instance_number").(int),
+		DesireInstanceNumber:      desireNum,
+		MinInstanceNumber:         minNum,
+		MaxInstanceNumber:         maxNum,
 		CoolDownTime:              d.Get("cool_down_time").(int),
 		LBListenerID:              d.Get("lb_listener_id").(string),
 		LBaaSListeners:            asgLBaaSListeners,
