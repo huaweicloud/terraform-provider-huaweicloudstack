@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations"
-	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups"
+	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups_hcs"
 )
 
 func resourceASConfiguration() *schema.Resource {
@@ -341,16 +341,16 @@ func resourceASConfigurationDelete(d *schema.ResourceData, meta interface{}) err
 	return nil
 }
 
-func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configurationID string) ([]groups.Group, error) {
-	var gs []groups.Group
-	listOpts := groups.ListOpts{
+func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configurationID string) ([]groups_hcs.Group, error) {
+	var gs []groups_hcs.Group
+	listOpts := groups_hcs.ListOpts{
 		ConfigurationID: configurationID,
 	}
-	page, err := groups.List(asClient, listOpts).AllPages()
+	page, err := groups_hcs.List(asClient, listOpts).AllPages()
 	if err != nil {
 		return gs, fmt.Errorf("Error getting ASGroups by configuration %q: %s", configurationID, err)
 	}
-	gs, err = page.(groups.GroupPage).Extract()
+	gs, err = page.(groups_hcs.GroupPage).Extract()
 	return gs, err
 }
 
