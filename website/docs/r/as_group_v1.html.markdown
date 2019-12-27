@@ -21,11 +21,16 @@ resource "huaweicloudstack_as_group_v1" "my_as_group" {
   desire_instance_number   = 2
   min_instance_number      = 0
   max_instance_number      = 10
-  networks                 = [{ id = "ad091b52-742f-469e-8f3c-fd81cadf0743" }]
-  security_groups          = [{ id = "45e4c6de-6bf0-4843-8953-2babde3d4810" }]
   vpc_id                   = "1d8f7e7c-fe04-4cf5-85ac-08b478c290e9"
   delete_publicip          = true
   delete_instances         = "yes"
+
+  networks {
+    id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  }
+  security_groups {
+    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
+  }
 }
 ```
 
@@ -38,14 +43,61 @@ resource "huaweicloudstack_as_group_v1" "my_as_group_only_remove_members" {
   desire_instance_number   = 2
   min_instance_number      = 0
   max_instance_number      = 10
-  networks                 = [{ id = "ad091b52-742f-469e-8f3c-fd81cadf0743" }]
-  security_groups          = [{ id = "45e4c6de-6bf0-4843-8953-2babde3d4810" }]
   vpc_id                   = "1d8f7e7c-fe04-4cf5-85ac-08b478c290e9"
   delete_publicip          = true
   delete_instances         = "no"
+
+  networks {
+    id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  }
+  security_groups {
+    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
+  }
 }
 ```
 
+### Autoscaling Group With ELB Listener
+
+```hcl
+resource "huaweicloudstack_lb_loadbalancer_v2" "loadbalancer_1" {
+  name = "loadbalancer_1"
+  vip_subnet_id = "d9415786-5f1a-428b-b35f-2f1523e146d2"
+}
+
+resource "huaweicloudstack_lb_listener_v2" "listener_1" {
+  name = "listener_1"
+  protocol = "HTTP"
+  protocol_port = 8080
+  loadbalancer_id = "${huaweicloudstack_lb_loadbalancer_v2.loadbalancer_1.id}"
+}
+
+resource "huaweicloudstack_lb_pool_v2" "pool_1" {
+  name = "pool_1"
+  protocol    = "HTTP"
+  lb_method   = "ROUND_ROBIN"
+  listener_id = "${huaweicloudstack_lb_listener_v2.listener_1.id}"
+}
+
+resource "huaweicloudstack_as_group_v1" "my_as_group_with_enhanced_lb"{
+  scaling_group_name = "my_as_group_with_enhanced_lb"
+  scaling_configuration_id = "37e310f5-db9d-446e-9135-c625f9c2bbfc"
+  desire_instance_number   = 2
+  min_instance_number      = 0
+  max_instance_number      = 10
+  vpc_id                   = "1d8f7e7c-fe04-4cf5-85ac-08b478c290e9"
+
+  networks {
+    id = "ad091b52-742f-469e-8f3c-fd81cadf0743"
+  }
+  security_groups {
+    id = "45e4c6de-6bf0-4843-8953-2babde3d4810"
+  }
+  lbaas_listeners {
+    listener_id   = "${huaweicloudstack_lb_listener_v2.listener_1.id}"
+    protocol_port = "${huaweicloudstack_lb_listener_v2.listener_1.protocol_port}"
+  }
+}
+```
 ## Argument Reference
 
 The following arguments are supported:
@@ -73,8 +125,14 @@ The following arguments are supported:
 * `cool_down_time` - (Optional) The cooling duration (in seconds). The value ranges
     from 0 to 86400, and is 900 by default.
 
-* `lb_listener_id` - (Optional) The ELB listener IDs. The system supports up to
+* `lb_listener_id` - (Optional) The ELB (classic) listener IDs. The system supports up to
     three ELB listeners, the IDs of which are separated using a comma (,).
+    This argument is deprecated, using `lbaas_listeners` instead.
+
+* `lbaas_listeners` - (Optional) An array of one or more ELB (enhanced).
+    The system supports the binding of up to three load balancers. The field is
+    alternative to lb_listener_id.  The lbaas_listeners object structure is
+    documented below.
 
 * `available_zones` - (Optional) The availability zones in which to create
     the instances in the autoscaling group.
@@ -118,17 +176,29 @@ The `security_groups` block supports:
 
 * `id` - (Required) The UUID of the security group.
 
+The `lbaas_listeners` block supports:
+
+* `listener_id` - (Required) Specifies the ELB listener ID.
+* `protocol_port` - (Required) Specifies the backend protocol, which is the port on which
+  a backend ECS listens for traffic. The number of the port ranges from 1 to 65535.
+* `weight` - (Optional) Specifies the weight, which determines the portion of requests a
+  backend ECS processes compared to other backend ECSs added to the same listener. The value
+  of this parameter ranges from 0 to 100. The default value is 1.
+
 ## Attributes Reference
 
 The following attributes are exported:
 
 * `region` - See Argument Reference above.
 * `scaling_group_name` - See Argument Reference above.
+* `scaling_group_status` - The status of the AS group.
+* `current_instance_number` - The number of current instances in the AS group.
 * `desire_instance_number` - See Argument Reference above.
 * `min_instance_number` - See Argument Reference above.
 * `max_instance_number` - See Argument Reference above.
 * `cool_down_time` - See Argument Reference above.
 * `lb_listener_id` - See Argument Reference above.
+* `lbaas_listeners` - See Argument Reference above.
 * `health_periodic_audit_method` - See Argument Reference above.
 * `health_periodic_audit_time` - See Argument Reference above.
 * `instance_terminate_policy` - See Argument Reference above.
