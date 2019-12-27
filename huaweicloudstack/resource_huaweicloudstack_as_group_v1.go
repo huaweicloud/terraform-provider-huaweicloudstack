@@ -452,6 +452,14 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(asgId)
 
+	// enable AS Group
+	time.Sleep(2 * time.Second)
+	enableResult := groups_hcs.Enable(asClient, asgId)
+	if enableResult.Err != nil {
+		return fmt.Errorf("Error enabling ASGroup %s: %s", asgId, enableResult.Err)
+	}
+	log.Printf("[DEBUG] Enable ASGroup %s success!", asgId)
+
 	// check all instances are inservice
 	if initNum > 0 {
 		timeout := d.Timeout(schema.TimeoutCreate)
@@ -541,6 +549,13 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 
 	}
 
+	// disable AS Group
+	disableResult := groups_hcs.Disable(asClient, d.Id())
+	if disableResult.Err != nil {
+		return fmt.Errorf("Error disabling ASGroup %s: %s", d.Id(), disableResult.Err)
+	}
+	log.Printf("[DEBUG] Disable ASGroup %s success!", d.Id())
+
 	networks := getAllNetworks(d, meta)
 	asgNetworks := expandNetworks(networks)
 
@@ -570,6 +585,15 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	if err != nil {
 		return fmt.Errorf("Error updating ASGroup %q: %s", asgID, err)
 	}
+
+	// re-enable AS Group
+	time.Sleep(2 * time.Second)
+	enableResult := groups_hcs.Enable(asClient, d.Id())
+	if enableResult.Err != nil {
+		return fmt.Errorf("Error enabling ASGroup %s: %s", d.Id(), enableResult.Err)
+	}
+	log.Printf("[DEBUG] Enable ASGroup %s success!", d.Id())
+
 	d.Partial(false)
 	return resourceASGroupRead(d, meta)
 }

@@ -11,6 +11,9 @@ import (
 	"log"
 )
 
+// default OS_FLAVOR_ID is invalid, change it
+var flavor_id string = "0fade091-6e7d-4175-aaab-84e05dc02924"
+
 func TestAccASV1Group_basic(t *testing.T) {
 	var asGroup groups_hcs.Group
 
@@ -105,7 +108,8 @@ resource "huaweicloudstack_compute_keypair_v2" "key_1" {
 resource "huaweicloudstack_as_configuration_v1" "as_config_1"{
   scaling_configuration_name = "as_config_1"
   instance_config {
-    image = "%s"
+    flavor = "%s"
+    image  = "%s"
     disk {
       size = 40
       volume_type = "SATA"
@@ -114,7 +118,7 @@ resource "huaweicloudstack_as_configuration_v1" "as_config_1"{
     key_name = "${huaweicloudstack_compute_keypair_v2.key_1.id}"
   }
 }
-`, OS_IMAGE_ID)
+`, flavor_id, OS_IMAGE_ID)
 
 var testASV1Group_basic = fmt.Sprintf(`
 %s
