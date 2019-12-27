@@ -39,6 +39,11 @@ func resourceASGroup() *schema.Resource {
 				ValidateFunc: resourceASGroupValidateGroupName,
 				ForceNew:     false,
 			},
+			"scaling_group_status": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 			"scaling_configuration_id": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -61,6 +66,11 @@ func resourceASGroup() *schema.Resource {
 				Optional: true,
 				Default:  0,
 				ForceNew: false,
+			},
+			"current_instance_number": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
 			},
 			"cool_down_time": {
 				Type:         schema.TypeInt,
@@ -492,6 +502,8 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 
 	// set properties based on the read info
 	d.Set("scaling_group_name", asg.Name)
+	d.Set("scaling_group_status", asg.Status)
+	d.Set("current_instance_number", asg.ActualInstanceNumber)
 	d.Set("desire_instance_number", asg.DesireInstanceNumber)
 	d.Set("min_instance_number", asg.MinInstanceNumber)
 	d.Set("max_instance_number", asg.MaxInstanceNumber)

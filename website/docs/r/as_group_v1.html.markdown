@@ -190,6 +190,8 @@ The following attributes are exported:
 
 * `region` - See Argument Reference above.
 * `scaling_group_name` - See Argument Reference above.
+* `scaling_group_status` - The status of the AS group.
+* `current_instance_number` - The number of current instances in the AS group.
 * `desire_instance_number` - See Argument Reference above.
 * `min_instance_number` - See Argument Reference above.
 * `max_instance_number` - See Argument Reference above.
