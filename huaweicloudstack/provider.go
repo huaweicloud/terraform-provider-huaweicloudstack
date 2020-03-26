@@ -150,6 +150,8 @@ func Provider() terraform.ResourceProvider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"huaweicloudstack_images_image_v2":        dataSourceImagesImageV2(),
+			"huaweicloudstack_kms_key_v1":             dataSourceKmsKeyV1(),
+			"huaweicloudstack_kms_data_key_v1":        dataSourceKmsDataKeyV1(),
 			"huaweicloudstack_networking_network_v2":  dataSourceNetworkingNetworkV2(),
 			"huaweicloudstack_networking_port_v2":     dataSourceNetworkingPortV2(),
 			"huaweicloudstack_networking_secgroup_v2": dataSourceNetworkingSecGroupV2(),
@@ -167,6 +169,7 @@ func Provider() terraform.ResourceProvider {
 			"huaweicloudstack_compute_servergroup_v2":             resourceComputeServerGroupV2(),
 			"huaweicloudstack_compute_floatingip_associate_v2":    resourceComputeFloatingIPAssociateV2(),
 			"huaweicloudstack_compute_volume_attach_v2":           resourceComputeVolumeAttachV2(),
+			"huaweicloudstack_kms_key_v1":                         resourceKmsKeyV1(),
 			"huaweicloudstack_lb_certificate_v2":                  resourceCertificateV2(),
 			"huaweicloudstack_lb_loadbalancer_v2":                 resourceLoadBalancerV2(),
 			"huaweicloudstack_lb_listener_v2":                     resourceListenerV2(),

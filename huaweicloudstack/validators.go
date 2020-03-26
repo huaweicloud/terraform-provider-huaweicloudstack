@@ -91,6 +91,16 @@ func validateJsonString(v interface{}, k string) (ws []string, errors []error) {
 	return
 }
 
+func validateKmsKeyStatus(v interface{}, k string) (ws []string, errors []error) {
+	status := v.(string)
+	if status != EnabledState && status != DisabledState && status != PendingDeletionState {
+		errors = append(errors, fmt.Errorf(
+			"%q must contain a valid status, expected %s or %s or %s, got %s.",
+			k, EnabledState, DisabledState, PendingDeletionState, status))
+	}
+	return
+}
+
 func validateName(v interface{}, k string) (ws []string, errors []error) {
 	value := v.(string)
 	if len(value) > 64 {

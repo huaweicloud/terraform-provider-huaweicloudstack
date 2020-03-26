@@ -251,6 +251,15 @@ func (c *Config) computeV2Client(region string) (*golangsdk.ServiceClient, error
 	})
 }
 
+func (c *Config) kmsKeyV1Client(region string) (*golangsdk.ServiceClient, error) {
+	// can not use NewKMSV1 as the catalog type "kms" was not registered on HCS
+	// NewKmsKeyV1 will get the endpoint from "compute", then replace it with kms
+	return huaweisdk.NewKmsKeyV1(c.HwClient, golangsdk.EndpointOpts{
+		Region:       c.determineRegion(region),
+		Availability: c.getHwEndpointType(),
+	})
+}
+
 func (c *Config) identityV3Client(region string) (*golangsdk.ServiceClient, error) {
 	return huaweisdk.NewIdentityV3(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),

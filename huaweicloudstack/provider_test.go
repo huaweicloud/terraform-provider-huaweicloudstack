@@ -27,6 +27,7 @@ var (
 	OS_VPC_ID                 = os.Getenv("OS_VPC_ID")
 	OS_SUBNET_ID              = os.Getenv("OS_SUBNET_ID")
 	OS_KEYPAIR_NAME           = os.Getenv("OS_KEYPAIR_NAME")
+	OS_KMS_ENVIRONMENT        = os.Getenv("OS_KMS_ENVIRONMENT")
 )
 
 var testAccProviders map[string]terraform.ResourceProvider
@@ -53,8 +54,8 @@ func testAccPreCheckRequiredEnvVars(t *testing.T) {
 		t.Fatal("OS_POOL_NAME must be set for acceptance tests")
 	}
 
-	if OS_REGION_NAME == "" {
-		t.Fatal("OS_REGION_NAME must be set for acceptance tests")
+	if OS_AVAILABILITY_ZONE == "" {
+		t.Fatal("OS_AVAILABILITY_ZONE must be set for acceptance tests")
 	}
 
 	if OS_REGION_NAME == "" {
@@ -110,6 +111,14 @@ func testAccPreCheckImage(t *testing.T) {
 	testAccPreCheckRequiredEnvVars(t)
 	if OS_ACCESS_KEY != "" && OS_SECRET_KEY != "" {
 		t.Skip("AK/SK authentication doesn't support images tests")
+	}
+}
+
+func testAccPreCheckKms(t *testing.T) {
+	testAccPreCheckRequiredEnvVars(t)
+
+	if OS_KMS_ENVIRONMENT == "" {
+		t.Skip("This environment does not support KMS tests")
 	}
 }
 
