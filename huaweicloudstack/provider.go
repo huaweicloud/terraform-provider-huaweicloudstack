@@ -1,6 +1,10 @@
 package huaweicloudstack
 
 import (
+	"fmt"
+	"log"
+	"strings"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
@@ -126,6 +130,12 @@ func Provider() terraform.ResourceProvider {
 				DefaultFunc: schema.EnvDefaultFunc("OS_ENDPOINT_TYPE", ""),
 			},
 
+			"endpoints": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
+
 			"cacert_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -245,6 +255,8 @@ func init() {
 
 		"endpoint_type": "The catalog endpoint type to use.",
 
+		"endpoints": "The custom endpoints used to override the default endpoint URL.",
+
 		"cert": "A client certificate to authenticate with.",
 
 		"key": "A client private key to authenticate with.",
@@ -273,9 +285,51 @@ func configureProvider(d *schema.ResourceData, terraformVersion string) (interfa
 		terraformVersion: terraformVersion,
 	}
 
+	config.endpoints = configureProviderEndpoints(d)
+
 	if err := config.LoadAndValidate(); err != nil {
 		return nil, err
 	}
 
 	return &config, nil
+}
+
+func configureProviderEndpoints(d *schema.ResourceData) map[string]string {
+	var availbaleServiceTypes = []string{"as", "ecs", "evs", "ims", "kms", "vpc"}
+
+	endpoints := d.Get("endpoints").(map[string]interface{})
+	epMap := make(map[string]string)
+
+	for key, val := range endpoints {
+		// ignore unsupportted type
+		if !validateEndpointType(key, availbaleServiceTypes) {
+			log.Printf("[WARN] the endpoint type %s is unsupportted", key)
+			continue
+		}
+
+		endpoint := strings.TrimSpace(val.(string))
+		// ignore empty string
+		if endpoint == "" {
+			log.Printf("[WARN] the value of endpoint %s is empty", key)
+			continue
+		}
+		// add prefix "https://" and suffix "/"
+		if !strings.HasPrefix(endpoint, "http") {
+			endpoint = fmt.Sprintf("https://%s", endpoint)
+		}
+		if !strings.HasSuffix(endpoint, "/") {
+			endpoint = fmt.Sprintf("%s/", endpoint)
+		}
+		epMap[key] = endpoint
+	}
+	return epMap
+}
+
+func validateEndpointType(value string, valid []string) bool {
+	for _, str := range valid {
+		if value == str {
+			return true
+		}
+	}
+	return false
 }

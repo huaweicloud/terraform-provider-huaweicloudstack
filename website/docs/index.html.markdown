@@ -136,7 +136,9 @@ The following arguments are supported:
   service catalog. It can be set using the OS_ENDPOINT_TYPE environment
   variable. If not set, public endpoints is used.
 
-* `delegated_project` - (Optional) The name of delegated project (Identity v3).
+* `endpoints` - (Optional) Specify the custom endpoints in key/value pairs, which
+  used to override the default endpoint URL constructed from the region.
+  The available keys include `as`, `ecs`, `evs`, `ims`, `vpc`, `kms`.
 
 ## Additional Logging
 
