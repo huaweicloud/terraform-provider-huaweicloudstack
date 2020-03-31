@@ -41,6 +41,7 @@ type Config struct {
 	Username         string
 	UserID           string
 	terraformVersion string
+	endpoints        map[string]string
 
 	HwClient *golangsdk.ProviderClient
 	s3sess   *session.Session
@@ -238,6 +239,10 @@ func (c *Config) computeS3conn(region string) (*s3.S3, error) {
 }
 
 func (c *Config) blockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {
+	if sc := c.getCustomerEndpoint("evs"); sc != nil {
+		return sc, nil
+	}
+
 	return huaweisdk.NewBlockStorageV2(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
@@ -245,6 +250,10 @@ func (c *Config) blockStorageV2Client(region string) (*golangsdk.ServiceClient, 
 }
 
 func (c *Config) computeV2Client(region string) (*golangsdk.ServiceClient, error) {
+	if sc := c.getCustomerEndpoint("ecs"); sc != nil {
+		return sc, nil
+	}
+
 	return huaweisdk.NewComputeV2(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
@@ -252,6 +261,10 @@ func (c *Config) computeV2Client(region string) (*golangsdk.ServiceClient, error
 }
 
 func (c *Config) kmsKeyV1Client(region string) (*golangsdk.ServiceClient, error) {
+	if sc := c.getCustomerEndpoint("kms"); sc != nil {
+		return sc, nil
+	}
+
 	// can not use NewKMSV1 as the catalog type "kms" was not registered on HCS
 	// NewKmsKeyV1 will get the endpoint from "compute", then replace it with kms
 	return huaweisdk.NewKmsKeyV1(c.HwClient, golangsdk.EndpointOpts{
@@ -268,6 +281,10 @@ func (c *Config) identityV3Client(region string) (*golangsdk.ServiceClient, erro
 }
 
 func (c *Config) imageV2Client(region string) (*golangsdk.ServiceClient, error) {
+	if sc := c.getCustomerEndpoint("ims"); sc != nil {
+		return sc, nil
+	}
+
 	return huaweisdk.NewImageServiceV2(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
@@ -275,6 +292,11 @@ func (c *Config) imageV2Client(region string) (*golangsdk.ServiceClient, error) 
 }
 
 func (c *Config) networkingV2Client(region string) (*golangsdk.ServiceClient, error) {
+	if sc := c.getCustomerEndpoint("vpc"); sc != nil {
+		sc.ResourceBase = sc.ResourceBase + "v2.0/"
+		return sc, nil
+	}
+
 	return huaweisdk.NewNetworkV2(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
@@ -282,6 +304,10 @@ func (c *Config) networkingV2Client(region string) (*golangsdk.ServiceClient, er
 }
 
 func (c *Config) autoscalingV1Client(region string) (*golangsdk.ServiceClient, error) {
+	if sc := c.getCustomerEndpoint("as"); sc != nil {
+		return sc, nil
+	}
+
 	return huaweisdk.NewAutoScalingService(c.HwClient, golangsdk.EndpointOpts{
 		Region:       c.determineRegion(region),
 		Availability: c.getHwEndpointType(),
@@ -303,4 +329,16 @@ func (c *Config) getHwEndpointType() golangsdk.Availability {
 		return golangsdk.AvailabilityAdmin
 	}
 	return golangsdk.AvailabilityPublic
+}
+
+func (c *Config) getCustomerEndpoint(srvType string) *golangsdk.ServiceClient {
+	endpoint, ok := c.endpoints[srvType]
+	if !ok {
+		return nil
+	}
+
+	return &golangsdk.ServiceClient{
+		ProviderClient: c.HwClient,
+		Endpoint:       endpoint,
+	}
 }
