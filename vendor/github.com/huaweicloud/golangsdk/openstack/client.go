@@ -233,6 +233,7 @@ func v3auth(client *golangsdk.ProviderClient, endpoint string, opts tokens3.Auth
 	client.TokenID = token.ID
 	if project != nil {
 		client.ProjectID = project.ID
+		client.DomainID = project.Domain.ID
 	}
 
 	if opts.CanReauth() {
@@ -332,12 +333,23 @@ func v3AKSKAuth(client *golangsdk.ProviderClient, endpoint string, options golan
 	if options.DomainID == "" && options.Domain != "" {
 		id, err := getDomainID(options.Domain, v3Client)
 		if err != nil {
-			return err
+			options.DomainID = ""
+		} else {
+			options.DomainID = id
 		}
-		options.DomainID = id
+	}
+
+	if options.BssDomainID == "" && options.BssDomain != "" {
+		id, err := getDomainID(options.BssDomain, v3Client)
+		if err != nil {
+			options.BssDomainID = ""
+		} else {
+			options.BssDomainID = id
+		}
 	}
 
 	client.ProjectID = options.ProjectId
+	client.DomainID = options.BssDomainID
 	v3Client.ProjectID = options.ProjectId
 
 	var entries = make([]tokens3.CatalogEntry, 0, 1)
@@ -549,6 +561,30 @@ func initClientOpts(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts,
 	return sc, nil
 }
 
+// initcommonServiceClient create a ServiceClient which can not get from clientType directly.
+// firstly, we initialize a service client by "volumev2" type, the endpoint likes https://evs.{region}.{xxx.com}/v2/{project_id}
+// then we replace the endpoint with the specified srv and version.
+func initcommonServiceClient(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts, srv string, version string) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "volumev2")
+	if err != nil {
+		return nil, err
+	}
+
+	e := strings.Replace(sc.Endpoint, "v2", version, 1)
+	sc.Endpoint = strings.Replace(e, "evs", srv, 1)
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
+
+// TODO: Need to change to apig client type from apig once available
+// ApiGateWayV1 creates a service client that is used for Huawei cloud for API gateway.
+func ApiGateWayV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "apig", 1)
+	sc.ResourceBase = sc.Endpoint + "v1.0/apigw/"
+	return sc, err
+}
+
 // NewObjectStorageV1 creates a ServiceClient that may be used with the v1
 // object storage package.
 func NewObjectStorageV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
@@ -591,10 +627,13 @@ func NewSharedFileSystemV2(client *golangsdk.ProviderClient, eo golangsdk.Endpoi
 	return initClientOpts(client, eo, "sharev2")
 }
 
-// NewCDNV1 creates a ServiceClient that may be used to access the OpenStack v1
+// NewCDNV1 creates a ServiceClient that may be used to access the v1
 // CDN service.
 func NewCDNV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-	return initClientOpts(client, eo, "cdn")
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = "https://cdn.myhuaweicloud.com/"
+	sc.ResourceBase = sc.Endpoint + "v1.0/"
+	return sc, err
 }
 
 // NewOrchestrationV1 creates a ServiceClient that may be used to access the v1
@@ -613,6 +652,14 @@ func NewDBV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*gola
 func NewDNSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
 	sc, err := initClientOpts(client, eo, "dns")
 	sc.ResourceBase = sc.Endpoint + "v2/"
+	return sc, err
+}
+
+// NewImageServiceV1 creates a ServiceClient that may be used to access the v1
+// image service.
+func NewImageServiceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "image")
+	sc.ResourceBase = sc.Endpoint + "v1/"
 	return sc, err
 }
 
@@ -689,6 +736,24 @@ func NewComputeV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (
 	return sc, err
 }
 
+func NewComputeV11(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "ecsv1.1")
+	return sc, err
+}
+
+func NewEcsV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "ecs")
+	return sc, err
+}
+
+func NewRdsTagV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "rds", 1)
+	sc.Endpoint = sc.Endpoint + "v1/"
+	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/rds/"
+	return sc, err
+}
+
 //NewAutoScalingService creates a ServiceClient that may be used to access the
 //auto-scaling service of huawei public cloud
 func NewAutoScalingService(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
@@ -721,15 +786,13 @@ func NewKmsKeyV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*
 }
 
 func NewElasticLoadBalancer(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-	//sc, err := initClientOpts1(client, eo, "elb")
-	sc, err := initClientOpts(client, eo, "compute")
+	sc, err := initClientOpts(client, eo, "network")
 	if err != nil {
 		return sc, err
 	}
-	sc.Endpoint = strings.Replace(sc.Endpoint, "ecs", "elb", 1)
-	sc.Endpoint = sc.Endpoint[:strings.LastIndex(sc.Endpoint, "v2")+3]
-	sc.Endpoint = strings.Replace(sc.Endpoint, "v2", "v1.0", 1)
-	sc.ResourceBase = sc.Endpoint
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "elb", 1)
+	sc.Endpoint = strings.Replace(sc.Endpoint, "myhwclouds", "myhuaweicloud", 1)
+	sc.ResourceBase = sc.Endpoint + "v1.0/"
 	return sc, err
 }
 
@@ -766,6 +829,15 @@ func NewMapReduceV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts)
 	return sc, err
 }
 
+// AntiDDoSV1 creates a ServiceClient that may be used with the v1 Anti DDoS service.
+func AntiDDoSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "antiddos", 1)
+	sc.Endpoint = sc.Endpoint + "v1/"
+	sc.ResourceBase = sc.Endpoint + client.ProjectID + "/"
+	return sc, err
+}
+
 // NewAntiDDoSV1 creates a ServiceClient that may be used with the v1 Anti DDoS Service
 // package.
 func NewAntiDDoSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
@@ -781,12 +853,10 @@ func NewAntiDDoSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) 
 }
 
 func NewCCEV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-	sc, err := initClientOpts(client, eo, "compute")
-	sc.Endpoint = strings.Replace(sc.Endpoint, "ecs", "cce", 1)
-	sc.Endpoint = strings.Replace(sc.Endpoint, "v2", "api/v3/projects", 1)
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "cce", 1)
 	sc.Endpoint = strings.Replace(sc.Endpoint, "myhwclouds", "myhuaweicloud", 1)
-	sc.ResourceBase = sc.Endpoint
-	sc.Type = "cce"
+	sc.ResourceBase = sc.Endpoint + "api/v3/projects/" + client.ProjectID + "/"
 	return sc, err
 }
 
@@ -815,8 +885,9 @@ func NewOBSService(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) 
 //TODO: Need to change to sfs client type from evs once available
 //NewSFSV2 creates a service client that is used for Huawei cloud  for SFS , it replaces the EVS type.
 func NewHwSFSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
-	sc, err := initClientOpts(client, eo, "compute")
-	sc.Endpoint = strings.Replace(sc.Endpoint, "ecs", "sfs", 1)
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "sfs", 1)
+	sc.ResourceBase = sc.Endpoint + "v2/" + client.ProjectID + "/"
 	return sc, err
 }
 
@@ -948,6 +1019,57 @@ func NewCCE(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golan
 	return sc, err
 }
 
+// NewWAF creates a ServiceClient that may be used to access the WAF service.
+func NewWAFV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "waf")
+	sc.ResourceBase = sc.Endpoint + "v1/" + client.ProjectID + "/waf/"
+	return sc, err
+}
+
+// NewRDSV3 creates a ServiceClient that may be used to access the RDS service.
+func NewRDSV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "rdsv3")
+	return sc, err
+}
+
+// SDRSV1 creates a ServiceClient that may be used with the v1 SDRS service.
+func SDRSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "sdrs", 1)
+	sc.Endpoint = sc.Endpoint + "v1/" + client.ProjectID + "/"
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
+
+// CCIV1 creates a ServiceClient that may be used with the v1 CCI service.
+func CCIV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = strings.Replace(sc.Endpoint, "vpc", "cci", 1)
+	sc.Endpoint = sc.Endpoint + "apis/networking.cci.io/v1beta1/"
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
+
+// TMSV1 creates a ServiceClient that may be used with the v1 TMS service.
+func TMSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "network")
+	sc.Endpoint = "https://tms.myhuaweicloud.com/v1.0/"
+	sc.ResourceBase = sc.Endpoint
+	return sc, err
+}
+
+// NewSDRSV1 creates a ServiceClient that may be used to access the SDRS service.
+func NewSDRSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "sdrs")
+	return sc, err
+}
+
+// NewBSSV1 creates a ServiceClient that may be used to access the BSS service.
+func NewBSSV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "bssv1")
+	return sc, err
+}
+
 func NewSDKClient(c *golangsdk.ProviderClient, eo golangsdk.EndpointOpts, serviceType string) (*golangsdk.ServiceClient, error) {
 	switch serviceType {
 	case "mls":
@@ -959,4 +1081,29 @@ func NewSDKClient(c *golangsdk.ProviderClient, eo golangsdk.EndpointOpts, servic
 	}
 
 	return initClientOpts(c, eo, serviceType)
+}
+
+// NewCESV1 creates a ServiceClient that may be used with the v1 CES service.
+func NewCESV1(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "cesv1")
+	return sc, err
+}
+
+// NewDDSV3 creates a ServiceClient that may be used to access the DDS service.
+func NewDDSV3(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "ddsv3")
+	return sc, err
+}
+
+// NewLTSV2 creates a ServiceClient that may be used to access the LTS service.
+func NewLTSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initcommonServiceClient(client, eo, "lts", "v2.0")
+	return sc, err
+}
+
+// NewFGSV2 creates a ServiceClient that may be used with the v2 as
+// package.
+func NewFGSV2(client *golangsdk.ProviderClient, eo golangsdk.EndpointOpts) (*golangsdk.ServiceClient, error) {
+	sc, err := initClientOpts(client, eo, "fgsv2")
+	return sc, err
 }

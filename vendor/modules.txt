@@ -179,13 +179,14 @@ github.com/hashicorp/terraform-plugin-sdk/internal/svchost
 github.com/hashicorp/terraform-plugin-sdk/internal/svchost/auth
 # github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 github.com/hashicorp/yamux
-# github.com/huaweicloud/golangsdk v0.0.0-20191226095119-6bb917f8c1d1
+# github.com/huaweicloud/golangsdk v0.0.0-20200418064011-e2807d1ece1f
 github.com/huaweicloud/golangsdk
 github.com/huaweicloud/golangsdk/openstack
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/configurations
-github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups
+github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups_hcs
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/instances
 github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/policies
+github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/tags
 github.com/huaweicloud/golangsdk/openstack/blockstorage/extensions/volumeactions
 github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes
 github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/attachinterfaces
@@ -203,6 +204,7 @@ github.com/huaweicloud/golangsdk/openstack/compute/v2/flavors
 github.com/huaweicloud/golangsdk/openstack/compute/v2/images
 github.com/huaweicloud/golangsdk/openstack/compute/v2/servers
 github.com/huaweicloud/golangsdk/openstack/imageservice/v2/images
+github.com/huaweicloud/golangsdk/openstack/kms/v1/keys
 github.com/huaweicloud/golangsdk/openstack/networking/v1/eips
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/firewall_groups
 github.com/huaweicloud/golangsdk/openstack/networking/v2/extensions/fwaas_v2/policies
