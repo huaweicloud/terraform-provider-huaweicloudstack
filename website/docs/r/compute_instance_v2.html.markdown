@@ -310,6 +310,8 @@ The following arguments are supported:
 * `metadata` - (Optional) Metadata key/value pairs to make available from
     within the instance. Changing this updates the existing server metadata.
 
+* `tags` - (Optional) An array of one or more tags of the compute instance.
+
 * `config_drive` - (Optional) Whether to use the config_drive feature to
     configure the instance. Changing this creates a new server.
 
@@ -408,6 +410,7 @@ The following attributes are exported:
     Floating IP.
 * `access_ip_v6` - The first detected Fixed IPv6 address.
 * `metadata` - See Argument Reference above.
+* `tags` - See Argument Reference above.
 * `security_groups` - See Argument Reference above.
 * `flavor_id` - See Argument Reference above.
 * `flavor_name` - See Argument Reference above.

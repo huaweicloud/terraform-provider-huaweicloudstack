@@ -421,6 +421,7 @@ var testAccComputeV2Instance_basic = fmt.Sprintf(`
 resource "huaweicloudstack_compute_instance_v2" "instance_1" {
   name = "instance_1"
   security_groups = ["default"]
+  tags = ["foo", "bar", "key1"]
   availability_zone = "%s"
   metadata = {
     foo = "bar"

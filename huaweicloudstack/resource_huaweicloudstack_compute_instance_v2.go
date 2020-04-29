@@ -19,6 +19,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/schedulerhints"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/secgroups"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/startstop"
+	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/tags"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/flavors"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/images"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
@@ -336,6 +337,11 @@ func resourceComputeInstanceV2() *schema.Resource {
 				},
 				Set: resourceComputeInstancePersonalityHash,
 			},
+			"tags": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+			},
 			"stop_before_destroy": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -475,6 +481,18 @@ func resourceComputeInstanceV2Create(d *schema.ResourceData, meta interface{}) e
 			server.ID, err)
 	}
 
+	// set tags
+	instanceTags := expandInstanceTags(d)
+	if len(instanceTags) > 0 {
+		tagsOpts := tags.CreateOpts{
+			Tags: instanceTags,
+		}
+		result := tags.Create(computeClient, d.Id(), tagsOpts)
+		if result.Err != nil {
+			return fmt.Errorf("Error setting tags on compute instance %s: %s", d.Id(), result.Err)
+		}
+	}
+
 	return resourceComputeInstanceV2Read(d, meta)
 }
 
@@ -571,6 +589,14 @@ func resourceComputeInstanceV2Read(d *schema.ResourceData, meta interface{}) err
 	// Set the region
 	d.Set("region", GetRegion(d, config))
 
+	// Set tags
+	instanceTags, err := tags.Get(computeClient, server.ID).Extract()
+	if err != nil {
+		log.Printf("[WARN] Unable to get tags for compute_instance_v2: %s", err)
+	} else {
+		d.Set("tags", instanceTags.Tags)
+	}
+
 	return nil
 }
 
@@ -661,6 +687,23 @@ func resourceComputeInstanceV2Update(d *schema.ResourceData, meta interface{}) e
 				return fmt.Errorf("Error adding security group (%s) to HuaweiCloudStack server (%s): %s", g, d.Id(), err)
 			}
 			log.Printf("[DEBUG] Added security group (%s) to instance (%s)", g, d.Id())
+		}
+	}
+
+	if d.HasChange("tags") {
+		var tagErr error = nil
+		instanceTags := expandInstanceTags(d)
+		if len(instanceTags) > 0 {
+			tagsOpts := tags.CreateOpts{
+				Tags: instanceTags,
+			}
+			tagErr = tags.Create(computeClient, d.Id(), tagsOpts).Err
+		} else {
+			tagErr = tags.Delete(computeClient, d.Id()).Err
+		}
+
+		if tagErr != nil {
+			return fmt.Errorf("Error updating tags on compute instance %s: %s", d.Id(), tagErr)
 		}
 	}
 
@@ -907,6 +950,17 @@ func resourceInstanceSchedulerHintsV2(d *schema.ResourceData, schedulerHintsRaw 
 	}
 
 	return schedulerHints
+}
+
+func expandInstanceTags(d *schema.ResourceData) []string {
+	rawTags := d.Get("tags").(*schema.Set).List()
+	tags := make([]string, len(rawTags))
+
+	for i, raw := range rawTags {
+		tags[i] = raw.(string)
+	}
+
+	return tags
 }
 
 func getImageIDFromConfig(computeClient *golangsdk.ServiceClient, d *schema.ResourceData) (string, error) {
