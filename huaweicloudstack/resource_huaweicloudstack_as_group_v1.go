@@ -9,6 +9,7 @@ import (
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups_hcs"
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/instances"
+	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/tags"
 	"regexp"
 	"strings"
 	"time"
@@ -199,6 +200,11 @@ func resourceASGroup() *schema.Resource {
 				ForceNew:    false,
 				Description: "The instances id list in the as group.",
 			},
+			"tags": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				ForceNew: false,
+			},
 		},
 	}
 }
@@ -233,6 +239,20 @@ func expandGroups(Groups []Group) []groups_hcs.SecurityGroupOpts {
 	}
 
 	return asgroups
+}
+
+func expandGroupsTags(tagmap map[string]interface{}) []tags.ResourceTag {
+	var taglist []tags.ResourceTag
+
+	for k, v := range tagmap {
+		tag := tags.ResourceTag{
+			Key:   k,
+			Value: v.(string),
+		}
+		taglist = append(taglist, tag)
+	}
+
+	return taglist
 }
 
 func getAllAvailableZones(d *schema.ResourceData) []string {
@@ -470,6 +490,15 @@ func resourceASGroupCreate(d *schema.ResourceData, meta interface{}) error {
 
 	d.SetId(asgId)
 
+	//set tags
+	tagRaw := d.Get("tags").(map[string]interface{})
+	if len(tagRaw) > 0 {
+		taglist := expandGroupsTags(tagRaw)
+		if tagErr := tags.Update(asClient, asgId, taglist).ExtractErr(); tagErr != nil {
+			return fmt.Errorf("Error setting tags of ASGroup %q: %s", asgId, tagErr)
+		}
+	}
+
 	// enable AS Group
 	time.Sleep(2 * time.Second)
 	enableResult := groups_hcs.Enable(asClient, asgId)
@@ -546,6 +575,20 @@ func resourceASGroupRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("region", GetRegion(d, config))
 
+	// save group tags
+	resourceTags, err := tags.Get(asClient, d.Id()).Extract()
+	if err != nil {
+		return fmt.Errorf("Error fetching HuaweiCloudStack ASGroup tags: %s", err)
+	}
+
+	tagmap := make(map[string]string)
+	for _, val := range resourceTags.Tags {
+		tagmap[val.Key] = val.Value
+	}
+	if err := d.Set("tags", tagmap); err != nil {
+		return fmt.Errorf("Error saving tags for HuaweiCloudStack ASGroup (%s): %s", d.Id(), err)
+	}
+
 	return nil
 }
 
@@ -608,6 +651,27 @@ func resourceASGroupUpdate(d *schema.ResourceData, meta interface{}) error {
 	asgID, err := groups_hcs.Update(asClient, d.Id(), updateOpts).Extract()
 	if err != nil {
 		return fmt.Errorf("Error updating ASGroup %q: %s", asgID, err)
+	}
+
+	//update tags
+	if d.HasChange("tags") {
+		//remove old tags and set new tags
+		old, new := d.GetChange("tags")
+		oldRaw := old.(map[string]interface{})
+		if len(oldRaw) > 0 {
+			taglist := expandGroupsTags(oldRaw)
+			if tagErr := tags.Delete(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
+				return fmt.Errorf("Error deleting tags of ASGroup %q: %s", asgID, tagErr)
+			}
+		}
+
+		newRaw := new.(map[string]interface{})
+		if len(newRaw) > 0 {
+			taglist := expandGroupsTags(newRaw)
+			if tagErr := tags.Update(asClient, asgID, taglist).ExtractErr(); tagErr != nil {
+				return fmt.Errorf("Error setting tags of ASGroup %q: %s", asgID, tagErr)
+			}
+		}
 	}
 
 	// re-enable AS Group

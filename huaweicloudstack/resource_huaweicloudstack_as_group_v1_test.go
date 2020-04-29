@@ -26,6 +26,10 @@ func TestAccASV1Group_basic(t *testing.T) {
 				Config: testASV1Group_basic,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckASV1GroupExists("huaweicloudstack_as_group_v1.as_group_1", &asGroup),
+					resource.TestCheckResourceAttr(
+						"huaweicloudstack_as_group_v1.as_group_1", "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(
+						"huaweicloudstack_as_group_v1.as_group_1", "tags.key", "value"),
 				),
 			},
 			{
@@ -133,6 +137,11 @@ resource "huaweicloudstack_as_group_v1" "as_group_1"{
   }
   security_groups {
     id = "${huaweicloudstack_networking_secgroup_v2.secgroup.id}"
+  }
+
+  tags = {
+    foo = "bar"
+    key = "value"
   }
 }
 `, testASV1Group_preRes, OS_VPC_ID, OS_NETWORK_ID)
