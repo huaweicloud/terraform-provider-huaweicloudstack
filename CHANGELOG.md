@@ -1,4 +1,23 @@
 ## 1.2.0 (Unreleased)
+
+FEATURES:
+
+* **New Resource:** `huaweicloudstack_kms_key_v1` ([#18](https://github.com/terraform-providers/terraform-provider-huaweicloudstack/pull/18))
+* **New Data Source:** `huaweicloudstack_kms_key_v1` ([#18](https://github.com/terraform-providers/terraform-provider-huaweicloudstack/pull/18))
+* **New Data Source:** `huaweicloudstack_kms_data_key_v1` ([#18](https://github.com/terraform-providers/terraform-provider-huaweicloudstack/pull/18))
+
+ENHANCEMENTS:
+
+* **provider:** Add custom endpoints parameter in the provider ([#19](https://github.com/terraform-providers/terraform-provider-huaweicloudstack/pull/19))
+* resource/huaweicloudstack_as_group_v1: support tags in autoscaling group resource ([#21](https://github.com/terraform-providers/terraform-provider-huaweicloudstack/pull/21))
+* resource/huaweicloudstack_compute_instance_v2: support tags in compute instance resource ([#22](https://github.com/terraform-providers/terraform-provider-huaweicloudstack/pull/22))
+* resource/huaweicloudstack_compute_instance_v2: support import compute instance ([#24](https://github.com/terraform-providers/terraform-provider-huaweicloudstack/pull/24))
+
+BUG FIXES:
+
+* data source/huaweicloudstack_networking*: raising an exception when creating network client failed ([#23](https://github.com/terraform-providers/terraform-provider-huaweicloudstack/pull/23))
+
+
 ## 1.1.0 (December 27, 2019)
 
 FEATURES:
