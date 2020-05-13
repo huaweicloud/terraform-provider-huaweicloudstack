@@ -320,6 +320,8 @@ func configureProviderEndpoints(d *schema.ResourceData) map[string]string {
 		if !strings.HasSuffix(endpoint, "/") {
 			endpoint = fmt.Sprintf("%s/", endpoint)
 		}
+
+		log.Printf("[DEBUG] set endpoint of service %s: %s", key, endpoint)
 		epMap[key] = endpoint
 	}
 	return epMap

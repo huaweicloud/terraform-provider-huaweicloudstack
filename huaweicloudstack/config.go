@@ -293,7 +293,7 @@ func (c *Config) imageV2Client(region string) (*golangsdk.ServiceClient, error) 
 
 func (c *Config) networkingV2Client(region string) (*golangsdk.ServiceClient, error) {
 	if sc := c.getCustomerEndpoint("vpc"); sc != nil {
-		sc.ResourceBase = sc.ResourceBase + "v2.0/"
+		sc.ResourceBase = sc.Endpoint + "v2.0/"
 		return sc, nil
 	}
 
