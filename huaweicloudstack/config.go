@@ -8,14 +8,6 @@ import (
 	"net/http"
 	"os"
 
-	"strings"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/hashicorp/errwrap"
-	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
 	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
 	"github.com/huaweicloud/golangsdk"
@@ -44,7 +36,6 @@ type Config struct {
 	endpoints        map[string]string
 
 	HwClient *golangsdk.ProviderClient
-	s3sess   *session.Session
 }
 
 func (c *Config) LoadAndValidate() error {
@@ -149,65 +140,7 @@ func newhwClient(c *Config) error {
 	}
 
 	c.HwClient = client
-
-	if c.AccessKey != "" && c.SecretKey != "" {
-		// Setup S3 client/config information for Swift S3 buckets
-		log.Println("[INFO] Building Swift S3 auth structure")
-		creds, err := GetCredentials(c)
-		if err != nil {
-			return err
-		}
-		// Call Get to check for credential provider. If nothing found, we'll get an
-		// error, and we can present it nicely to the user
-		cp, err := creds.Get()
-		if err != nil {
-			if sErr, ok := err.(awserr.Error); ok && sErr.Code() == "NoCredentialProviders" {
-				return fmt.Errorf("No valid credential sources found for S3 Provider.")
-			}
-
-			return fmt.Errorf("Error loading credentials for S3 Provider: %s", err)
-		}
-
-		log.Printf("[INFO] S3 Auth provider used: %q", cp.ProviderName)
-
-		sConfig := &aws.Config{
-			Credentials: creds,
-			Region:      aws.String(c.Region),
-			HTTPClient:  cleanhttp.DefaultClient(),
-		}
-
-		if osDebug {
-			sConfig.LogLevel = aws.LogLevel(aws.LogDebugWithHTTPBody | aws.LogDebugWithRequestRetries | aws.LogDebugWithRequestErrors)
-			sConfig.Logger = awsLogger{}
-		}
-
-		if c.Insecure {
-			transport := sConfig.HTTPClient.Transport.(*http.Transport)
-			transport.TLSClientConfig = &tls.Config{
-				InsecureSkipVerify: true,
-			}
-		}
-
-		// Set up base session for S3
-		c.s3sess, err = session.NewSession(sConfig)
-		if err != nil {
-			return errwrap.Wrapf("Error creating Swift S3 session: {{err}}", err)
-		}
-	}
-
 	return nil
-}
-
-type awsLogger struct{}
-
-func (l awsLogger) Log(args ...interface{}) {
-	tokens := make([]string, 0, len(args))
-	for _, arg := range args {
-		if token, ok := arg.(string); ok {
-			tokens = append(tokens, token)
-		}
-	}
-	log.Printf("[DEBUG] [aws-sdk-go] %s", strings.Join(tokens, " "))
 }
 
 func (c *Config) determineRegion(region string) string {
@@ -219,23 +152,6 @@ func (c *Config) determineRegion(region string) string {
 
 	log.Printf("[DEBUG] HuaweiCloudStack Region is: %s", region)
 	return region
-}
-
-func (c *Config) computeS3conn(region string) (*s3.S3, error) {
-	if c.s3sess == nil {
-		return nil, fmt.Errorf("Missing credentials for Swift S3 Provider, need access_key and secret_key values for provider.")
-	}
-
-	client, err := huaweisdk.NewImageServiceV2(c.HwClient, golangsdk.EndpointOpts{
-		Region:       c.determineRegion(region),
-		Availability: c.getHwEndpointType(),
-	})
-	endpoint := strings.Replace(client.Endpoint, "//ims", "//oss", 1)
-
-	awsS3Sess := c.s3sess.Copy(&aws.Config{Endpoint: aws.String(endpoint)})
-	s3conn := s3.New(awsS3Sess)
-
-	return s3conn, err
 }
 
 func (c *Config) blockStorageV2Client(region string) (*golangsdk.ServiceClient, error) {

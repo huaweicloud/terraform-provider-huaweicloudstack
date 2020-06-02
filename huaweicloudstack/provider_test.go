@@ -99,14 +99,6 @@ func testAccPreCheckAdminOnly(t *testing.T) {
 	}
 }
 
-func testAccPreCheckS3(t *testing.T) {
-	testAccPreCheckRequiredEnvVars(t)
-
-	if OS_ACCESS_KEY == "" || OS_SECRET_KEY == "" {
-		t.Skip("OS_ACCESS_KEY and OS_SECRET_KEY must be set for S3 acceptance tests")
-	}
-}
-
 func testAccPreCheckImage(t *testing.T) {
 	testAccPreCheckRequiredEnvVars(t)
 	if OS_ACCESS_KEY != "" && OS_SECRET_KEY != "" {
