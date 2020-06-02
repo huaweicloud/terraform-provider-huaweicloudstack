@@ -57,6 +57,15 @@ func (c *Config) LoadAndValidate() error {
 		return fmt.Errorf("Invalid endpoint type provided")
 	}
 
+	if c.Password != "" {
+		if c.Username == "" && c.UserID == "" {
+			return fmt.Errorf("\"password\": one of `user_name, user_id` must be specified")
+		}
+		if c.TenantName != "" && c.DomainID == "" && c.DomainName == "" {
+			return fmt.Errorf("\"tenant_name\": one of `domain_name, domain_id` must be specified")
+		}
+	}
+
 	return newhwClient(c)
 
 }
