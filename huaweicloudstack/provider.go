@@ -20,15 +20,17 @@ func Provider() terraform.ResourceProvider {
 			"access_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_ACCESS_KEY", ""),
+				DefaultFunc: schema.EnvDefaultFunc("OS_ACCESS_KEY", nil),
 				Description: descriptions["access_key"],
+				Deprecated:  "not supported, please use password authentication",
 			},
 
 			"secret_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_SECRET_KEY", ""),
+				DefaultFunc: schema.EnvDefaultFunc("OS_SECRET_KEY", nil),
 				Description: descriptions["secret_key"],
+				Deprecated:  "not supported, please use password authentication",
 			},
 
 			"auth_url": {
@@ -40,23 +42,25 @@ func Provider() terraform.ResourceProvider {
 
 			"region": {
 				Type:        schema.TypeString,
-				Optional:    true,
+				Required:    true,
 				Description: descriptions["region"],
-				DefaultFunc: schema.EnvDefaultFunc("OS_REGION_NAME", ""),
+				DefaultFunc: schema.EnvDefaultFunc("OS_REGION_NAME", nil),
 			},
 
 			"user_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_USERNAME", ""),
-				Description: descriptions["user_name"],
+				Type:          schema.TypeString,
+				Optional:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("OS_USERNAME", nil),
+				Description:   descriptions["user_name"],
+				ConflictsWith: []string{"user_id"},
 			},
 
 			"user_id": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_USER_ID", ""),
-				Description: descriptions["user_name"],
+				Type:          schema.TypeString,
+				Optional:      true,
+				DefaultFunc:   schema.EnvDefaultFunc("OS_USER_ID", nil),
+				Description:   descriptions["user_name"],
+				ConflictsWith: []string{"user_name", "domain_name", "domain_id"},
 			},
 
 			"tenant_id": {
@@ -80,17 +84,18 @@ func Provider() terraform.ResourceProvider {
 			},
 
 			"password": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_PASSWORD", ""),
-				Description: descriptions["password"],
+				Type:         schema.TypeString,
+				Optional:     true,
+				Sensitive:    true,
+				DefaultFunc:  schema.EnvDefaultFunc("OS_PASSWORD", nil),
+				Description:  descriptions["password"],
+				ExactlyOneOf: []string{"password", "token"},
 			},
 
 			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("OS_AUTH_TOKEN", ""),
+				DefaultFunc: schema.EnvDefaultFunc("OS_AUTH_TOKEN", nil),
 				Description: descriptions["token"],
 			},
 
@@ -101,8 +106,9 @@ func Provider() terraform.ResourceProvider {
 					"OS_USER_DOMAIN_ID",
 					"OS_PROJECT_DOMAIN_ID",
 					"OS_DOMAIN_ID",
-				}, ""),
-				Description: descriptions["domain_id"],
+				}, nil),
+				Description:   descriptions["domain_id"],
+				ConflictsWith: []string{"domain_name"},
 			},
 
 			"domain_name": {
@@ -113,8 +119,9 @@ func Provider() terraform.ResourceProvider {
 					"OS_PROJECT_DOMAIN_NAME",
 					"OS_DOMAIN_NAME",
 					"OS_DEFAULT_DOMAIN",
-				}, ""),
-				Description: descriptions["domain_name"],
+				}, nil),
+				Description:   descriptions["domain_name"],
+				ConflictsWith: []string{"domain_id"},
 			},
 
 			"insecure": {

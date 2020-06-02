@@ -70,20 +70,11 @@ provider "huaweicloudstack" {
 
 The following arguments are supported:
 
-* `access_key` - (Optional) The access key of the HuaweiCloudStack to use.
-  If omitted, the `OS_ACCESS_KEY` environment variable is used.
-
-* `secret_key` - (Optional) The secret key of the HuaweiCloudStack to use.
-  If omitted, the `OS_SECRET_KEY` environment variable is used.
-
 * `auth_url` - (Required) The Identity authentication URL. If omitted, the
   `OS_AUTH_URL` environment variable is used.
 
-* `region` - (Optional) The region of the HuaweiCloudStack to use. If omitted,
-  the `OS_REGION_NAME` environment variable is used. If `OS_REGION_NAME` is
-  not set, then no region will be used. It should be possible to omit the
-  region in single-region HuaweiCloudStack environments, but this behavior may vary
-  depending on the HuaweiCloudStack environment being used.
+* `region` - (Required) The region of the HuaweiCloudStack to use. If omitted,
+  the `OS_REGION_NAME` environment variable is used.
 
 * `user_name` - (Optional) The Username to login with. If omitted, the
   `OS_USERNAME` environment variable is used.
@@ -99,8 +90,8 @@ The following arguments are supported:
   (Identity v3) to login with. If omitted, the `OS_TENANT_NAME` or
   `OS_PROJECT_NAME` environment variable are used.
 
-* `password` - (Optional) The Password to login with. If omitted, the
-  `OS_PASSWORD` environment variable is used.
+* `password` - (Optional; Required if not using `token`) The Password to login with.
+  If omitted, the `OS_PASSWORD` environment variable is used.
 
 * `token` - (Optional; Required if not using `user_name` and `password`)
   A token is an expiring, temporary means of access issued via the Keystone
@@ -139,6 +130,13 @@ The following arguments are supported:
 * `endpoints` - (Optional) Specify the custom endpoints in key/value pairs, which
   used to override the default endpoint URL constructed from the region.
   The available keys include `as`, `ecs`, `evs`, `ims`, `vpc`, `kms`.
+
+* `access_key` - (Deprecated) The access key of the HuaweiCloudStack to use.
+  If omitted, the `OS_ACCESS_KEY` environment variable is used.
+
+* `secret_key` - (Deprecated) The secret key of the HuaweiCloudStack to use.
+  If omitted, the `OS_SECRET_KEY` environment variable is used.
+
 
 ## Additional Logging
 
