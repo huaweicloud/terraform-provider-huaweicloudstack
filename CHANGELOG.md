@@ -1,4 +1,9 @@
 ## 1.3.0 (Unreleased)
+
+ENHANCEMENTS:
+
+* Update for Terraform 0.13
+
 ## 1.2.0 (April 29, 2020)
 
 FEATURES:
