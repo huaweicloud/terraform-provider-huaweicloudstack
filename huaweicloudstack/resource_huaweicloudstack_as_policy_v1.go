@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/policies"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/policies"
 )
 
 func resourceASPolicy() *schema.Resource {

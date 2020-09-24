@@ -9,9 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/hashcode"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/huaweicloud/golangsdk"
 	"github.com/huaweicloud/golangsdk/openstack/blockstorage/v2/volumes"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/extensions/availabilityzones"
@@ -24,6 +23,7 @@ import (
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/flavors"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/images"
 	"github.com/huaweicloud/golangsdk/openstack/compute/v2/servers"
+	"github.com/terraform-providers/terraform-provider-huaweicloudstack/huaweicloudstack/helper/hashcode"
 )
 
 func resourceComputeInstanceV2() *schema.Resource {
@@ -81,12 +81,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 				ForceNew:    false,
 				Computed:    true,
 				DefaultFunc: schema.EnvDefaultFunc("OS_FLAVOR_NAME", nil),
-			},
-			"floating_ip": {
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: false,
-				Removed:  "Use the huaweicloudstack_compute_floatingip_associate_v2 resource instead",
 			},
 			"user_data": {
 				Type:     schema.TypeString,
@@ -153,12 +147,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 							Optional: true,
 							ForceNew: true,
 							Computed: true,
-						},
-						"floating_ip": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-							Removed:  "Use the huaweicloudstack_compute_floatingip_associate_v2 resource instead",
 						},
 						"mac": {
 							Type:     schema.TypeString,
@@ -255,29 +243,6 @@ func resourceComputeInstanceV2() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
-						},
-					},
-				},
-			},
-			"volume": {
-				Type:     schema.TypeSet,
-				Optional: true,
-				Removed:  "Use block_device or huaweicloudstack_compute_volume_attach_v2 instead",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"id": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
-						},
-						"volume_id": {
-							Type:     schema.TypeString,
-							Required: true,
-						},
-						"device": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
 						},
 					},
 				},

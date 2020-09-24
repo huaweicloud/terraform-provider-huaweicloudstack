@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/resource"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
+
+	"log"
 
 	"github.com/huaweicloud/golangsdk/openstack/autoscaling/v1/groups_hcs"
-	"log"
 )
 
 // default OS_FLAVOR_ID is invalid, change it

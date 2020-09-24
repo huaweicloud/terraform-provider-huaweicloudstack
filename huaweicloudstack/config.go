@@ -8,10 +8,10 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/pathorcontents"
-	"github.com/hashicorp/terraform-plugin-sdk/httpclient"
 	"github.com/huaweicloud/golangsdk"
 	huaweisdk "github.com/huaweicloud/golangsdk/openstack"
+	"github.com/terraform-providers/terraform-provider-huaweicloudstack/httpclient"
+	"github.com/terraform-providers/terraform-provider-huaweicloudstack/huaweicloudstack/helper/pathorcontents"
 )
 
 type Config struct {
